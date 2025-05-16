@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Orbitron', 'Arial', sans-serif;
+  background: #0A0A0A;
+  margin: 0;
+  overflow-x: hidden;
+}
+
+@keyframes neon-glow {
+  0% { text-shadow: 0 0 4px #00CCFF, 0 0 8px #00CCFF, 0 0 12px #00CCFF; }
+  50% { text-shadow: 0 0 8px #FF00FF, 0 0 16px #FF00FF, 0 0 24px #FF00FF; }
+  100% { text-shadow: 0 0 4px #00CCFF, 0 0 8px #00CCFF, 0 0 12px #00CCFF; }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(2px, -2px); }
+  60% { transform: translate(-2px, 0); }
+  80% { transform: translate(2px, 2px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 5px #00CCFF, 0 0 10px #00CCFF; }
+  50% { box-shadow: 0 0 10px #FF00FF, 0 0 20px #FF00FF; }
+  100% { box-shadow: 0 0 5px #00CCFF, 0 0 10px #00CCFF; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.logo-text {
+  font-family: 'Bebas Neue', sans-serif;
+  color: #00CCFF;
+  animation: neon-glow 3s infinite, glitch 0.3s infinite;
+}
+
+#background-canvas canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.glass-card {
+  background: rgba(10, 10, 10, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 204, 255, 0.5);
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 15px #00CCFF, 0 0 30px #FF00FF;
+  animation: pulse-glow 2s infinite;
+}
+
+.timeline-connector {
+  position: absolute;
+  left: 20px;
+  top: 40px;
+  bottom: 40px;
+  width: 4px;
+  background: linear-gradient(to bottom, #00CCFF, #FF00FF);
+  z-index: 0;
+}
+
+.timeline-dot {
+  width: 16px;
+  height: 16px;
+  background: #00CCFF;
+  border: 2px solid #FF00FF;
+  border-radius: 50%;
+  position: absolute;
+  left: 12px;
+  z-index: 1;
+}
+
+.hero-bg {
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.2), rgba(255, 0, 255, 0.2));
+  border-radius: 16px;
+}
+
+/* Mobile optimization */
+@media (max-width: 768px) {
+  .grid-cols-3, .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+  .p-8 {
+    padding: 1rem;
+  }
+  .timeline-connector {
+    left: 16px;
+  }
+  .timeline-dot {
+    left: 8px;
+  }
+  .hero-bg {
+    padding: 1rem;
+  }
+}
