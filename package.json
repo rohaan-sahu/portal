@@ -15,11 +15,12 @@
     "@solana/web3.js": "^1.98.2",
     "@tailwindcss/postcss": "^4.1.7",
     "firebase": "^11.7.3",
+    "prop-types": "^15.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-firebase-hooks": "^5.1.1",
     "three": "^0.176.0",
-    "prop-types": "^15.8.1",
+    "tweetnacl": "^1.0.3",
     "web3": "^4.16.0"
   },
   "devDependencies": {
@@ -28,12 +29,12 @@
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
     "autoprefixer": "^10.4.21",
-    "prettier": "^3.3.3",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
+    "prettier": "^3.3.3",
     "tailwindcss": "^4.1.7",
     "vite": "^6.3.5"
   }

@@ -1,215 +1,122 @@
 import { initializeApp } from 'firebase/app';
 import {
-  getFirestore,
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp,
-} from 'firebase/firestore';
-import {
   getAuth,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
-  signInAnonymously,
-  setPersistence,
-  browserLocalPersistence,
-  signOut as firebaseSignOut,
-  updateProfile as firebaseUpdateProfile,
+  onAuthStateChanged,
+  signOut,
+  signInWithCustomToken,
 } from 'firebase/auth';
-import { firebaseConfig } from './firebase-config.js';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { firebaseConfig } from './firebase-config';
+import nacl from 'tweetnacl';
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
-let isSigningIn = false;
 
-// Set auth persistence to LOCAL
-setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log('Auth persistence set to LOCAL'))
-  .catch((error) => console.error('Error setting persistence:', error));
+export const signInWithGoogle = async () => {
+  try {
+    await signInWithRedirect(auth, googleProvider);
+    return { success: true };
+  } catch (error) {
+    console.error('Google sign-in error:', error.message);
+    throw new Error(`Google sign-in failed: ${error.message}`);
+  }
+};
 
-// Handle redirect result
-async function handleRedirectResult() {
+export const handleRedirectResult = async () => {
   try {
     const result = await getRedirectResult(auth);
     if (result) {
       const user = result.user;
-      if (!user.displayName) {
-        const derivedName = deriveNameFromEmail(user.email);
-        await updateUserProfile(user, { displayName: derivedName });
-      }
-      await registerUser(user, false);
-      window.currentUser = user;
+      await setDoc(doc(db, 'users', user.uid), {
+        displayName: user.displayName || user.email?.split('@')[0] || 'Player',
+        email: user.email,
+        lastLogin: new Date(),
+      }, { merge: true });
       return user;
     }
     return null;
   } catch (error) {
-    console.error('Redirect result error:', error.code, error.message);
-    throw error;
+    console.error('Redirect result error:', error.message);
+    throw new Error(`Redirect error: ${error.message}`);
   }
-}
+};
 
-// Derive display name from email
-function deriveNameFromEmail(email) {
-  if (!email) return 'unnamedPlayer';
-  const localPart = email.split('@')[0];
-  const parts = localPart.split('.').map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
-  return parts.join('').replace(/[^a-zA-Z0-9]/g, '');
-}
-
-// Register user in Firestore
-async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
-  const userRef = doc(db, 'users', user.uid);
-  let attempts = 0;
-  const maxAttempts = 3;
-  while (attempts < maxAttempts) {
-    try {
-      const docSnap = await getDoc(userRef);
-      if (!docSnap.exists()) {
-        const defaultData = {
-          uid: user.uid,
-          displayName: user.displayName || deriveNameFromEmail(user.email) || `player${user.uid.slice(0, 8)}`,
-          createdAt: serverTimestamp(),
-          isWeb3: isWeb3,
-          solanaPublicKey: isWeb3 ? solanaPublicKey : null,
-          games: {},
-          lastActive: serverTimestamp(),
-        };
-        await setDoc(userRef, defaultData);
-        console.log(`User registered: ${user.uid}, Web3: ${isWeb3}`);
-      }
-      return;
-    } catch (error) {
-      attempts++;
-      console.error(`Register user attempt ${attempts} failed:`, error.code, error.message);
-      if (attempts === maxAttempts) {
-        throw new Error(`Failed to register user after ${maxAttempts} attempts: ${error.message}`);
-      }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-  }
-}
-
-// Sign in with Google
-async function signInWithGoogle() {
-  if (!auth) throw new Error('Auth not initialized');
-  if (isSigningIn) return auth.currentUser;
-  isSigningIn = true;
+export const signInWithSolana = async () => {
   try {
-    await signInWithRedirect(auth, googleProvider);
-  } catch (error) {
-    console.error('Google sign-in error:', error.code, error.message, error.stack);
-    throw error;
-  } finally {
-    isSigningIn = false;
-  }
-}
-
-// Sign in with Solana wallet
-async function signInWithSolana() {
-  if (!auth) throw new Error('Auth not initialized');
-  if (isSigningIn) return auth.currentUser;
-  isSigningIn = true;
-  try {
-    const provider = window.solana;
-    if (!provider || !provider.isConnected) {
+    if (!window.solana || (!window.solana.isPhantom && !window.solana.isSolflare)) {
       throw new Error('Solana wallet not detected. Please install Solflare or Phantom.');
     }
-    await provider.connect();
-    const publicKey = provider.publicKey.toString();
-    let user = auth.currentUser;
-    if (!user) {
-      const result = await signInAnonymously(auth);
-      user = result.user;
+
+    const provider = window.solana;
+    const { publicKey } = await provider.connect();
+    const publicKeyStr = publicKey.toString();
+
+    const message = new TextEncoder().encode('Sign in to Playrush.io');
+    const signature = await provider.signMessage(message);
+    const isValid = nacl.sign.detached.verify(message, signature, publicKey.toBytes());
+
+    if (!isValid) {
+      throw new Error('Invalid Solana signature');
     }
-    await registerUser(user, true, publicKey);
-    window.currentUser = user;
-    return { user, publicKey };
-  } catch (error) {
-    console.error('Solana sign-in error:', error.code || error.message, error.stack);
-    throw error;
-  } finally {
-    isSigningIn = false;
-  }
-}
 
-// Sign out
-async function signOutUser() {
-  if (!auth) throw new Error('Auth not initialized');
-  try {
-    await firebaseSignOut(auth);
-    window.currentUser = null;
-    console.log('User signed out successfully');
-  } catch (error) {
-    console.error('Sign-out error:', error.code, error.message);
-    throw error;
-  }
-}
+    // Mock custom token (replace with backend if available)
+    const response = await fetch('http://localhost:3000/api/auth/solana', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ publicKey: publicKeyStr, signature: Buffer.from(signature).toString('hex') }),
+    });
 
-// Load game data
-async function loadGameData() {
-  const user = auth.currentUser;
-  if (!user) return null;
-  const docRef = doc(db, 'users', user.uid);
-  try {
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      return docSnap.data();
+    if (!response.ok) {
+      throw new Error('Solana authentication failed');
     }
-    return null;
+
+    const { token } = await response.json();
+    const userCredential = await signInWithCustomToken(auth, token);
+    const user = userCredential.user;
+
+    await setDoc(doc(db, 'users', user.uid), {
+      solanaPublicKey: publicKeyStr,
+      displayName: user.displayName || `Player_${publicKeyStr.slice(0, 4)}`,
+      lastLogin: new Date(),
+    }, { merge: true });
+
+    return { user, publicKey: publicKeyStr };
   } catch (error) {
-    console.error('Load game data error:', error.code, error.message);
+    console.error('Solana sign-in error:', error.message);
     throw error;
   }
-}
-
-// Save game data
-async function saveGameData(data) {
-  const user = auth.currentUser;
-  if (!user) throw new Error('No user signed in');
-  const userRef = doc(db, 'users', user.uid);
-  try {
-    const updatedData = {
-      ...data,
-      uid: user.uid,
-      displayName: user.displayName || data.displayName || 'unnamedPlayer',
-      lastActive: serverTimestamp(),
-    };
-    await setDoc(userRef, updatedData, { merge: true });
-  } catch (error) {
-    console.error('Save game data error:', error.code, error.message);
-    throw error;
-  }
-}
-
-// Update profile
-async function updateUserProfile(user, profile) {
-  try {
-    await firebaseUpdateProfile(user, profile);
-    if (profile.displayName) {
-      await saveGameData({ displayName: profile.displayName });
-    }
-  } catch (error) {
-    console.error('Profile update error:', error.code, error.message);
-    throw error;
-  }
-}
-
-export {
-  auth,
-  db,
-  doc,
-  setDoc,
-  getDoc,
-  registerUser,
-  signInWithGoogle,
-  signInWithSolana,
-  signOutUser,
-  loadGameData,
-  saveGameData,
-  updateUserProfile,
-  handleRedirectResult,
 };
+
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+    return { success: true };
+  } catch (error) {
+    console.error('Sign-out error:', error.message);
+    throw new Error(`Sign-out failed: ${error.message}`);
+  }
+};
+
+export const loadGameData = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
+      return userDoc.data();
+    }
+  }
+  return null;
+};
+
+export const updateUserProfile = async (user, data) => {
+  if (user) {
+    await setDoc(doc(db, 'users', user.uid), data, { merge: true });
+  }
+};
+
+export { auth, onAuthStateChanged };

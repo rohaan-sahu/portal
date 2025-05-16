@@ -76,7 +76,7 @@ export default function NavBar({ setActiveSection, account, setAccount }) {
         ) : user ? (
           <div className="flex items-center space-x-2">
             <span className="text-sm text-[#00CCFF] font-orbitron">
-              {user.displayName || user.email?.slice(0, 6) + '...' || 'Player'}
+              {user.displayName || account?.solanaPublicKey?.slice(0, 4) + '...' + account?.solanaPublicKey?.slice(-4) || user.email?.slice(0, 6) + '...' || 'Player'}
             </span>
             <button
               className="bg-[#FF00FF] text-[#0A0A0A] px-4 py-2 rounded-md font-orbitron font-bold hover:bg-[#00CCFF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
