@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { signInWithGoogle, signInWithSolana } from '../firebase';
+import PropTypes from 'prop-types';
 
 export default function SignInModal({ isOpen, onClose, setAccount }) {
   const modalRef = useRef(null);
@@ -77,3 +78,9 @@ export default function SignInModal({ isOpen, onClose, setAccount }) {
     </div>
   );
 }
+
+SignInModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  setAccount: PropTypes.func.isRequired,
+};
