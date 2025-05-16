@@ -8,7 +8,7 @@ import Token from './components/Token';
 import Community from './components/Community';
 import Profile from './components/Profile';
 import { initBackground } from './scenes/BackgroundScene';
-import { auth, handleRedirectResult } from './firebase';
+import { auth, handleGoogleRedirectResult } from './firebase';
 
 export default function App() {
   const [account, setAccount] = useState(null);
@@ -20,13 +20,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    handleRedirectResult()
+    handleGoogleRedirectResult()
       .then((user) => {
         if (user) {
           setAccount(user);
         }
       })
-      .catch((err) => console.error('Redirect result error:', err.message));
+      .catch((err) => console.error('Google redirect error:', err.message));
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
       setAccount(user);

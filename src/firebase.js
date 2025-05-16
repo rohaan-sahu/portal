@@ -6,7 +6,7 @@ import {
   GoogleAuthProvider,
   onAuthStateChanged,
   signOut,
-  signInWithCustomToken,
+  signInAnonymously,
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { firebaseConfig } from './firebase-config';
@@ -17,6 +17,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+// Google Sign-In
 export const signInWithGoogle = async () => {
   try {
     await signInWithRedirect(auth, googleProvider);
@@ -27,25 +28,27 @@ export const signInWithGoogle = async () => {
   }
 };
 
-export const handleRedirectResult = async () => {
+// Handle Google Redirect Result
+export const handleGoogleRedirectResult = async () => {
   try {
     const result = await getRedirectResult(auth);
     if (result) {
       const user = result.user;
       await setDoc(doc(db, 'users', user.uid), {
-        displayName: user.displayName || user.email?.split('@')[0] || 'Player',
         email: user.email,
+        displayName: user.displayName || user.email?.split('@')[0] || 'Player',
         lastLogin: new Date(),
       }, { merge: true });
       return user;
     }
     return null;
   } catch (error) {
-    console.error('Redirect result error:', error.message);
-    throw new Error(`Redirect error: ${error.message}`);
+    console.error('Google redirect error:', error.message);
+    throw new Error(`Google redirect failed: ${error.message}`);
   }
 };
 
+// Solana Sign-In (Client-Only Fallback)
 export const signInWithSolana = async () => {
   try {
     if (!window.solana || (!window.solana.isPhantom && !window.solana.isSolflare)) {
@@ -64,24 +67,13 @@ export const signInWithSolana = async () => {
       throw new Error('Invalid Solana signature');
     }
 
-    // Mock custom token (replace with backend if available)
-    const response = await fetch('http://localhost:3000/api/auth/solana', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ publicKey: publicKeyStr, signature: Buffer.from(signature).toString('hex') }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Solana authentication failed');
-    }
-
-    const { token } = await response.json();
-    const userCredential = await signInWithCustomToken(auth, token);
+    // Client-only: Use anonymous Firebase auth with Solana data
+    const userCredential = await signInAnonymously(auth);
     const user = userCredential.user;
 
     await setDoc(doc(db, 'users', user.uid), {
       solanaPublicKey: publicKeyStr,
-      displayName: user.displayName || `Player_${publicKeyStr.slice(0, 4)}`,
+      displayName: `Player_${publicKeyStr.slice(0, 4)}`,
       lastLogin: new Date(),
     }, { merge: true });
 
@@ -92,6 +84,7 @@ export const signInWithSolana = async () => {
   }
 };
 
+// Sign Out
 export const signOutUser = async () => {
   try {
     await signOut(auth);
@@ -102,6 +95,7 @@ export const signOutUser = async () => {
   }
 };
 
+// Load User Data
 export const loadGameData = async () => {
   const user = auth.currentUser;
   if (user) {
@@ -113,6 +107,7 @@ export const loadGameData = async () => {
   return null;
 };
 
+// Update User Profile
 export const updateUserProfile = async (user, data) => {
   if (user) {
     await setDoc(doc(db, 'users', user.uid), data, { merge: true });

@@ -19,7 +19,6 @@ export default function SignInModal({ isOpen, onClose, setAccount }) {
     setError(null);
     try {
       await signInWithGoogle();
-      // Redirect handled in App.jsx
     } catch (err) {
       setError(err.message || 'Failed to sign in with Google.');
       setLoading(null);

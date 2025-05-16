@@ -1,18 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, loadGameData, updateUserProfile } from '../firebase';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-
-function Model({ url }) {
-  try {
-    const { scene } = useGLTF(url);
-    return <primitive object={scene} scale={[0.5, 0.5, 0.5]} />;
-  } catch (error) {
-    console.error(`Failed to load model: ${url}`, error);
-    return null;
-  }
-}
 
 export default function Profile() {
   const [user, loading] = useAuthState(auth);
@@ -63,15 +51,11 @@ export default function Profile() {
       {error && <p className="text-[#FF00FF] font-orbitron text-center mb-4">{error}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
         <div className="glass-card p-6 border border-[#00CCFF] rounded-md">
-          <Canvas camera={{ position: [0, 0, 2], fov: 50 }} aria-hidden="true">
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} intensity={1} />
-            <pointLight position={[0, 0, 2]} intensity={0.8} color="#00CCFF" />
-            <Model url="/assets/low_poly_gamepad.glb" />
-            <OrbitControls enableZoom={false} enablePan={false} />
-          </Canvas>
           <p className="text-white font-orbitron mt-4">
             Wallet: {profile?.solanaPublicKey ? `${profile.solanaPublicKey.slice(0, 4)}...${profile.solanaPublicKey.slice(-4)}` : 'Not linked'}
+          </p>
+          <p className="text-white font-orbitron">
+            Email: {profile?.email || 'Not linked'}
           </p>
           <label htmlFor="displayName" className="text-white font-orbitron block mt-2">Display Name</label>
           <input
