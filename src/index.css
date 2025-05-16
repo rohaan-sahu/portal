@@ -1,6 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Bebas+Neue&display=swap');
+
+:root {
+  --neon-blue: #00CCFF;
+  --neon-pink: #FF00FF;
+}
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(20px); }
@@ -8,8 +11,8 @@
 }
 
 @keyframes neon-glow {
-  0%, 100% { text-shadow: 0 0 10px #00CCFF; }
-  50% { text-shadow: 0 0 20px #00CCFF; }
+  0%, 100% { text-shadow: 0 0 5px var(--neon-blue), 0 0 10px var(--neon-blue), 0 0 15px var(--neon-blue); }
+  50% { text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue); }
 }
 
 @keyframes pulse {
@@ -30,7 +33,6 @@
   animation: pulse 1.5s infinite;
 }
 
-/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up,
   .animate-neon-glow,
@@ -44,14 +46,21 @@
 .glass-card {
   background: rgba(10, 10, 10, 0.7);
   backdrop-filter: blur(10px);
+  transition: box-shadow 0.3s;
+}
+
+.glass-card:hover {
+  box-shadow: 0 0 15px var(--neon-blue);
 }
 
 .timeline-connector {
   z-index: -1;
+  background: linear-gradient(to bottom, var(--neon-blue), transparent);
 }
 
 .timeline-dot {
   z-index: 10;
+  box-shadow: 0 0 10px var(--neon-pink);
 }
 
 html {
@@ -66,24 +75,26 @@ html {
 }
 
 body {
-  @apply bg-[#0A0A0A] text-white font-orbitron;
+  background: #0A0A0A;
+  color: white;
+  font-family: 'Orbitron', sans-serif;
   margin: 0;
   padding: 0;
 }
 
 h1, h2, h3 {
-  @apply font-bebas;
+  font-family: 'Bebas Neue', sans-serif;
 }
 
 button, a {
-  @apply transition duration-300;
+  transition: duration 300ms;
 }
 
 button:focus, a:focus {
-  @apply outline-none ring-2 ring-[#00CCFF];
+  outline: none;
+  ring: 2px solid #00CCFF;
 }
 
-/* Hamburger Menu */
 .nav-open {
   transform: translateX(0);
 }

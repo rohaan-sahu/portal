@@ -13,9 +13,9 @@ export default function Roadmap() {
       {
         quarter: 'Q2 2025',
         title: 'Game Launcher & Token',
-        description: 'Develop game launcher, release new games, launch Playpump token, expand team, and initiate marketing.',
+        description: 'Develop game launcher, release new games, launch PlayRUSH (PR) token, expand team, and initiate marketing.',
         completed: false,
-        details: ['Game launcher beta', 'Two new games', 'Playpump token launch', 'Hire developers', 'Social media campaign'],
+        details: ['Game launcher beta', 'Two new games', 'PlayRUSH (PR) token launch', 'Hire developers', 'Social media campaign'],
       },
       {
         quarter: 'Q3 2025',
@@ -29,7 +29,7 @@ export default function Roadmap() {
         title: 'Creator Portals',
         description: 'Enable creators to build and monetize games on Playrush.',
         completed: false,
-        details: ['Creator contract', 'Monetization tools', 'Community showcase'],
+        details: ['Creator SDK', 'Monetization tools', 'Community showcase'],
       },
     ],
     []
@@ -41,9 +41,10 @@ export default function Roadmap() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        entries.forEach((entry, idx) => {
           if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
+            entry.target.style.animationDelay = `${idx * 0.2}s`;
             entry.target.classList.add('animate-fade-in-up');
             observer.unobserve(entry.target);
           }
@@ -83,7 +84,10 @@ export default function Roadmap() {
 
   return (
     <div className="p-4 sm:p-8 min-h-screen relative z-10 bg-gradient-to-b from-[#0A0A0A] to-[#1a1a2e]">
-      <h2 className="text-3xl sm:text-4xl font-bold text-[#00CCFF] font-bebas mb-8 sm:mb-12 text-center animate-neon-glow" id="roadmap-title">
+      <h2
+        id="roadmap-title"
+        className="text-3xl sm:text-4xl font-bold text-[#00CCFF] font-bebas mb-8 sm:mb-12 text-center animate-neon-glow"
+      >
         Playrush Roadmap
       </h2>
 
@@ -91,16 +95,17 @@ export default function Roadmap() {
       <div className="max-w-3xl mx-auto mb-8">
         <div className="w-full bg-[#1a1a2e] rounded-full h-4">
           <div
-            className="bg-[#00CCFF] h-4 rounded-full transition-all duration-1000"
+            className="bg-gradient-to-r from-[#00CCFF] to-[#FF00FF] h-4 rounded-full transition-all duration-1000"
             style={{ width: `${progressPercentage}%` }}
             role="progressbar"
             aria-valuenow={progressPercentage}
             aria-valuemin="0"
             aria-valuemax="100"
             aria-label="Roadmap completion progress"
+            aria-describedby="progress-description"
           ></div>
         </div>
-        <p className="text-center text-[#00CCFF] font-orbitron mt-2">
+        <p id="progress-description" className="text-center text-[#00CCFF] font-orbitron mt-2 text-sm sm:text-base">
           {completedCount}/{roadmapItems.length} Milestones Completed
         </p>
       </div>
@@ -127,14 +132,14 @@ export default function Roadmap() {
                 {item.quarter}: {item.title}
               </h3>
               {item.completed && (
-                <span className="bg-[#00CCFF] text-[#0A0A0A] text-xs font-bold px-2 py-1 rounded-full">
+                <span className="bg-[#00CCFF] text-[#0A0A0A] text-xs sm:text-sm font-bold px-2 py-1 rounded-full">
                   Completed
                 </span>
               )}
             </div>
-            <p className="text-white font-orbitron">{item.description}</p>
+            <p className="text-white font-orbitron text-sm sm:text-base">{item.description}</p>
             {expandedIndex === index && (
-              <ul className="mt-4 list-disc list-inside text-white font-orbitron">
+              <ul className="mt-4 list-disc list-inside text-white font-orbitron text-sm sm:text-base">
                 {item.details.map((detail, i) => (
                   <li key={i}>{detail}</li>
                 ))}

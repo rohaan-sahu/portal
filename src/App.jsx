@@ -1,46 +1,30 @@
-import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import Landing from './components/Landing';
-import Dashboard from './components/Dashboard';
 import Games from './components/Games';
 import Roadmap from './components/Roadmap';
 import Token from './components/Token';
 import Community from './components/Community';
+import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
-import { initBackground } from './scenes/BackgroundScene';
-import { auth } from './firebase';
 
 export default function App() {
-  const [account, setAccount] = useState(null);
-  const [activeSection, setActiveSection] = useState('landing');
-
-  useEffect(() => {
-    const cleanup = initBackground();
-    return cleanup;
-  }, []);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setAccount(user);
-    });
-    return unsubscribe;
-  }, []);
-
   return (
-    <div className="bg-[#0A0A0A] text-white min-h-screen relative">
-      <div id="background-canvas" className="absolute inset-0 z-0"></div>
-      <div className="relative z-10">
-        <NavBar setActiveSection={setActiveSection} account={account} setAccount={setAccount} />
-        <div className="min-h-screen">
-          {activeSection === 'landing' && <Landing setActiveSection={setActiveSection} />}
-          {activeSection === 'dashboard' && <Dashboard account={account} />}
-          {activeSection === 'games' && <Games />}
-          {activeSection === 'roadmap' && <Roadmap />}
-          {activeSection === 'token' && <Token />}
-          {activeSection === 'community' && <Community />}
-          {activeSection === 'profile' && <Profile />}
+    <Router>
+      <div className="bg-[#0A0A0A] text-white min-h-screen relative">
+        <NavBar />
+        <div className="relative z-10">
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/games" element={<Games />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route path="/token" element={<Token />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
         </div>
       </div>
-    </div>
+    </Router>
   );
 }

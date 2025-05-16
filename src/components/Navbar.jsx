@@ -2,105 +2,137 @@ import { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signOut } from '../firebase';
 import SignInModal from './SignInModal';
+import { FaBars, FaTimes } from 'react-icons/fa';
 
-export default function NavBar({ setActiveSection, account, setAccount }) {
-  const [user, loading] = useAuthState(auth);
-  const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+export default function NavBar() {
+  const [user] = useAuthState(auth);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      setAccount(null);
     } catch (error) {
-      console.error('Sign-out error:', error.message);
+      console.error('Sign out error:', error);
     }
   };
 
+  const toggleNav = () => {
+    setIsNavOpen(!isNavOpen);
+  };
+
+  const navLinks = [
+    { name: 'Home', href: '/' },
+    { name: 'Games', href: '/games' },
+    { name: 'Roadmap', href: '/roadmap' },
+    { name: 'Token', href: '/token' },
+    { name: 'Community', href: '/community' },
+    { name: 'Dashboard', href: '/dashboard' },
+    { name: 'Profile', href: '/profile' },
+  ];
+
   return (
-    <nav className="flex justify-between items-center p-4 bg-[#0A0A0A] border-b border-[#00CCFF] fixed top-0 w-full z-20">
-      <h1 className="text-2xl font-bold text-[#00CCFF] font-bebas hover:text-[#FF00FF] transition-colors" aria-label="Playrush Home">
-        Playrush.io
-      </h1>
-      <div className="flex space-x-4 items-center">
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('landing')}
-          aria-label="Home"
-        >
-          Home
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('dashboard')}
-          aria-label="Dashboard"
-        >
-          Dashboard
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('games')}
-          aria-label="Games"
-        >
-          Games
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('roadmap')}
-          aria-label="Roadmap"
-        >
-          Roadmap
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('token')}
-          aria-label="Token"
-        >
-          Token
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('community')}
-          aria-label="Community"
-        >
-          Community
-        </button>
-        <button
-          className="text-white hover:text-[#FF00FF] font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-          onClick={() => setActiveSection('profile')}
-          aria-label="Profile"
-        >
-          Profile
-        </button>
-        {loading ? (
-          <span className="text-white font-orbitron">Loading...</span>
-        ) : user ? (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-[#00CCFF] font-orbitron">
-              {user.displayName || account?.solanaPublicKey?.slice(0, 4) + '...' + account?.solanaPublicKey?.slice(-4) || user.email?.slice(0, 6) + '...' || 'Player'}
-            </span>
-            <button
-              className="bg-[#FF00FF] text-[#0A0A0A] px-4 py-2 rounded-md font-orbitron font-bold hover:bg-[#00CCFF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-              onClick={handleSignOut}
-              aria-label={`Sign out ${user.displayName || 'Player'}`}
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#00CCFF]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0">
+            <a
+              href="/"
+              className="text-2xl sm:text-3xl font-bebas text-[#00CCFF] animate-neon-glow"
+              aria-label="Playrush Home"
             >
-              Sign Out
+              Playrush
+            </a>
+          </div>
+          <div className="hidden md:flex space-x-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-white hover:text-[#00CCFF] px-3 py-2 text-sm sm:text-base font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+          <div className="hidden md:flex items-center space-x-4">
+            {user ? (
+              <>
+                <span className="text-[#00CCFF] text-sm sm:text-base font-orbitron">
+                  {user.displayName || user.email?.slice(0, 6) + '...' || 'Player'}
+                </span>
+                <button
+                  onClick={handleSignOut}
+                  className="bg-[#FF00FF] text-[#0A0A0A] px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-[#00CCFF] text-sm sm:text-base font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-[#00CCFF] text-[#0A0A0A] px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-[#FF00FF] text-sm sm:text-base font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={toggleNav}
+              className="text-[#00CCFF] focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+              aria-label={isNavOpen ? 'Close menu' : 'Open menu'}
+            >
+              {isNavOpen ? <FaTimes size="24" /> : <FaBars size="24" />}
             </button>
           </div>
-        ) : (
-          <button
-            className="bg-[#00CCFF] text-[#0A0A0A] px-4 py-2 rounded-md font-orbitron font-bold hover:bg-[#FF00FF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-            onClick={() => setIsSignInModalOpen(true)}
-            aria-label="Sign in"
-          >
-            Sign In
-          </button>
-        )}
+        </div>
+        <div
+          className={`md:hidden fixed top-16 left-0 right-0 bg-[#0A0A0A]/95 backdrop-blur-md transform ${
+            isNavOpen ? 'nav-open' : 'translate-x-full'
+          } transition-transform duration-300`}
+        >
+          <div className="flex flex-col items-center py-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="text-white hover:text-[#00CCFF] py-2 text-lg font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+                onClick={toggleNav}
+              >
+                {link.name}
+              </a>
+            ))}
+            {user ? (
+              <>
+                <span className="text-[#00CCFF] py-2 text-lg font-orbitron">
+                  {user.displayName || user.email?.slice(0, 6) + '...' || 'Player'}
+                </span>
+                <button
+                  onClick={() => {
+                    handleSignOut();
+                    toggleNav();
+                  }}
+                  className="bg-[#FF00FF] text-[#0A0A0A] px-4 py-2 rounded hover:bg-[#00CCFF] mt-2 text-lg font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => {
+                  setIsModalOpen(true);
+                  toggleNav();
+                }}
+                className="bg-[#00CCFF] text-[#0A0A0A] px-4 py-2 rounded hover:bg-[#FF00FF] mt-2 text-lg font-orbitron focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
+              >
+                Sign In
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-      <SignInModal
-        isOpen={isSignInModalOpen}
-        onClose={() => setIsSignInModalOpen(false)}
-        setAccount={setAccount}
-      />
+      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </nav>
   );
 }
