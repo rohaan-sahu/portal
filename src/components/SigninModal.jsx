@@ -18,7 +18,9 @@ export default function SignInModal({ isOpen, onClose, setAccount }) {
     setLoading('google');
     setError(null);
     try {
-      await signInWithGoogle();
+      const user = await signInWithGoogle();
+      setAccount(user);
+      onClose();
     } catch (err) {
       setError(err.message || 'Failed to sign in with Google.');
       setLoading(null);

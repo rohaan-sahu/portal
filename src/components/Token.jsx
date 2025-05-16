@@ -1,18 +1,24 @@
 export default function Token() {
-  const tokenInfo = {
-    name: 'Playrush Token (PRUSH)',
-    totalSupply: '1,000,000,000',
-    utility: 'In-game purchases, governance, staking rewards',
-  };
-
   return (
-    <div className="p-8">
-      <h2 className="text-3xl mb-4">Playrush Token</h2>
-      <div className="bg-gray-700 p-4 rounded">
-        <p><strong>Name:</strong> {tokenInfo.name}</p>
-        <p><strong>Total Supply:</strong> {tokenInfo.totalSupply}</p>
-        <p><strong>Utility:</strong> {tokenInfo.utility}</p>
-        <button className="bg-green-500 px-4 py-2 mt-4 rounded">Buy PRUSH</button>
+    <div className="p-4 sm:p-8 min-h-screen relative z-10 bg-gradient-to-b from-[#0A0A0A] to-[#1a1a2e] flex items-center justify-center">
+      <div className="glass-card p-6 sm:p-8 border border-[#00CCFF] rounded-md text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold text-[#00CCFF] font-bebas mb-4 animate-neon-glow">
+          PlayRUSH(PR) Token
+        </h2>
+        <p className="text-white font-orbitron text-lg sm:text-xl">
+          Coming Soon 
+        </p>
+        <p className="text-[#00CCFF] font-orbitron mt-4">
+          Stay tuned
+        </p>
+        <a
+          href="https://twitter.com/playrushio"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-block bg-[#00CCFF] text-[#0A0A0A] font-bold py-2 px-4 rounded hover:bg-[#FF00FF] transition font-orbitron"
+        >
+          Follow us on Twitter
+        </a>
       </div>
     </div>
   );

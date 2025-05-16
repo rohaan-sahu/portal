@@ -1,24 +1,56 @@
-export default function Dashboard({ account }) {
+import { useEffect, useState } from 'react';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, loadGameData } from '../firebase';
+
+export default function Dashboard() {
+  const [user, loading] = useAuthState(auth);
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      if (user) {
+        try {
+          const data = await loadGameData();
+          if (data) {
+            setProfile(data);
+          } else {
+            setError('No profile data found.');
+          }
+        } catch (err) {
+          setError('Failed to load profile: ' + err.message);
+        }
+      }
+    }
+    fetchProfile();
+  }, [user]);
+
+  if (loading) return <p className="text-white font-orbitron text-center p-8 pt-20">Loading...</p>;
+  if (!user) return <p className="text-white font-orbitron text-center p-8 pt-20">Please sign in.</p>;
+
   return (
-    <div className="p-8">
-      <h2 className="text-3xl mb-4">Dashboard</h2>
-      {account ? (
-        <div>
-          <p>Welcome, {account.slice(0, 6)}...{account.slice(-4)}!</p>
-          <div className="grid grid-cols-2 gap-4 mt-4">
-            <div className="bg-gray-700 p-4 rounded">
-              <h3 className="text-xl">Your NFTs</h3>
-              <p>3 Owned Assets</p>
-            </div>
-            <div className="bg-gray-700 p-4 rounded">
-              <h3 className="text-xl">PRUSH Balance</h3>
-              <p>1000 PRUSH</p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <p>Please connect your wallet to view your dashboard.</p>
-      )}
+    <div className="p-8 pt-20 text-white font-orbitron">
+      <h2 className="text-4xl font-bold text-[#00CCFF] font-bebas mb-8 text-center">
+        Dashboard
+      </h2>
+      {error && <p className="text-[#FF00FF] font-orbitron text-center mb-4">{error}</p>}
+      <div className="glass-card p-6 border border-[#00CCFF] rounded-md max-w-2xl mx-auto">
+        <p className="text-lg">
+          Welcome, {profile?.displayName || user.displayName || 'Player'}!
+        </p>
+        {profile?.solanaPublicKey && (
+          <p className="mt-2">
+            Wallet: {profile.solanaPublicKey.slice(0, 4)}...{profile.solanaPublicKey.slice(-4)}
+          </p>
+        )}
+        {user.email && (
+          <p className="mt-2">
+            Email: {user.email.slice(0, 6)}...{user.email.split('@')[1]}
+          </p>
+        )}
+        <p className="mt-2">High Score: {profile?.highScore || 0}</p>
+        <p className="mt-2">Games Played: {profile?.timesPlayed || 0}</p>
+      </div>
     </div>
   );
 }

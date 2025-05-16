@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, loadGameData, updateUserProfile } from '../firebase';
+import { auth, loadGameData, updateProfile } from '../firebase';
 
 export default function Profile() {
   const [user, loading] = useAuthState(auth);
@@ -30,7 +30,7 @@ export default function Profile() {
   const handleUpdateProfile = async () => {
     if (user && displayName && displayName !== profile?.displayName) {
       try {
-        await updateUserProfile(user, { displayName });
+        await updateProfile(user, { displayName });
         setProfile({ ...profile, displayName });
         setError(null);
         alert('Profile updated successfully');
@@ -77,8 +77,8 @@ export default function Profile() {
         </div>
         <div className="glass-card p-6 border border-[#00CCFF] rounded-md">
           <h3 className="text-2xl font-bold text-[#FF00FF] font-bebas mb-4">Game Stats</h3>
-          <p className="text-white font-orbitron">Tac-Rush Plays: {profile?.games?.tacRush?.timesPlayed || 0}</p>
-          <p className="text-white font-orbitron">CyberRush Plays: {profile?.games?.cyberrush?.timesPlayed || 0}</p>
+          <p className="text-white font-orbitron">Tac-Rush Plays: {profile?.timesPlayed || 0}</p>
+          <p className="text-white font-orbitron">High Score: {profile?.highScore || 0}</p>
         </div>
       </div>
     </div>

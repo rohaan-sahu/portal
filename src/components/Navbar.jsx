@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, signOutUser } from '../firebase';
+import { auth, signOut } from '../firebase';
 import SignInModal from './SignInModal';
 
 export default function NavBar({ setActiveSection, account, setAccount }) {
@@ -9,7 +9,7 @@ export default function NavBar({ setActiveSection, account, setAccount }) {
 
   const handleSignOut = async () => {
     try {
-      await signOutUser();
+      await signOut();
       setAccount(null);
     } catch (error) {
       console.error('Sign-out error:', error.message);
