@@ -8,3 +8,8 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.glb'],
 });
+resolve: {
+  alias: {
+    '@': '/src',
+  },
+},
