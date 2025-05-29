@@ -36,12 +36,12 @@ export default function NavBar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <a
-              href="/"
-              className="text-2xl sm:text-3xl font-bebas text-[#00CCFF] animate-neon-glow"
-              aria-label="Playrush Home"
-            >
-              Playrush
+            <a href="/" aria-label="Playrush Home">
+              <img
+                src="src/assets/playrush-logo.png"
+                alt="Playrush Logo"
+                className="h-8 w-auto sm:h-10 animate-neon-glow"
+              />
             </a>
           </div>
           <div className="hidden md:flex space-x-4">

@@ -18,9 +18,9 @@ export default function Games() {
     },
     {
       id: 3,
-      name: 'RetroBlitz',
-      image: 'https://via.placeholder.com/150',
-      status: 'Upcoming',
+      name: 'CyberRun',
+      image: 'src/assets/cyberrun.png',
+      status: 'Live',
       url: '#',
     },
   ];
