@@ -29,17 +29,17 @@ export default function Landing({ setActiveSection }) {
       id: 'tacRush',
       name: 'Tac-Rush',
       url: 'https://tacrush.playrush.io',
-      model: 'src/assets/tic-tac-toe.glb',
+      model: 'assets/tic-tac-toe.glb',
       status: 'Live',
-      image: '/assets/tic-tac-toe.png',
+      image: 'assets/tic-tac-toe.png',
     },
     {
       id: 'cyberrush',
       name: 'CyberRush',
       url: 'https://cyberrush.playrush.io',
-      model: 'src/assets/character.glb',
+      model: 'assets/character.glb',
       status: 'Live',
-      image: '/assets/character.png',
+      image: 'assets/character.png',
     },
   ];
 

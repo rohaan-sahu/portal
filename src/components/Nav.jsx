@@ -38,7 +38,7 @@ export default function NavBar() {
           <div className="flex-shrink-0">
             <a href="/" aria-label="Playrush Home">
               <img
-                src="src/assets/playrush-logo.png"
+                src="assets/playrush-logo.png"
                 alt="Playrush Logo"
                 className="h-8 w-auto sm:h-10 animate-neon-glow"
               />
