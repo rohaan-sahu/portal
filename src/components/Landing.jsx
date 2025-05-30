@@ -12,7 +12,7 @@ function Model({ url, scrollY }) {
         scene.position.y = Math.sin(scrollY * 0.001) * 0.2;
       }
     });
-    return <primitive object={scene} scale={[0.25, 0.25, 0.25]} />;
+    return <primitive object={scene} scale={[0.2, 0.2, 0.2]} />;
   } catch (error) {
     console.error(`Failed to load model: ${url}`);
     return null;
@@ -46,7 +46,7 @@ export default function Landing({ setActiveSection }) {
   const valueProps = [
     {
       title: 'Modernized Classics',
-      description: 'Rediscover Tic-Tac-Toe and more with a Web3 twist.',
+      description: 'Rediscover Tic-Tac-Toe and more now with a Web3 twist.',
     },
     {
       title: 'Play Together',

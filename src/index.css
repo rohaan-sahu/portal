@@ -43,10 +43,11 @@
   }
 }
 
+/* In your CSS file, e.g., src/index.css */
 .glass-card {
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(10px);
-  transition: box-shadow 0.3s;
+  position: relative;
+  top: auto !important;
+  margin: auto;
 }
 
 .glass-card:hover {
@@ -94,7 +95,7 @@ button:focus, a:focus {
   outline: none;
   ring: 2px solid #00CCFF;
 }
-
+ 
 .nav-open {
   transform: translateX(0);
 }

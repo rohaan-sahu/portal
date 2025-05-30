@@ -93,21 +93,14 @@ async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
-
     if (!user.displayName) {
       const derivedName = deriveNameFromEmail(user.email);
       await firebaseUpdateProfile(user, { displayName: derivedName });
     }
     await registerUser(user, false);
-    if (analytics) {
-      logEvent(analytics, 'sign_in', { method: 'google' });
-    }
-    return user;
+    return user; 
   } catch (error) {
     console.error('Google sign-in error:', error.code, error.message, error.stack);
-    if (analytics) {
-      logEvent(analytics, 'exception', { description: `Sign-in error: ${error.message}`, fatal: false });
-    }
     throw error;
   } finally {
     isSigningIn = false;
