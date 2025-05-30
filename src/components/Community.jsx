@@ -13,15 +13,14 @@ export default function Community() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch leaderboard
+      
         const lb = await getLeaderboard();
         setLeaderboard(lb);
 
-        // Fetch recent activities
+    
         const acts = await getRecentActivity();
         setActivities(acts);
 
-        // Fetch user profile
         if (user) {
           const data = await loadGameData();
           setProfile(data);
@@ -43,7 +42,7 @@ export default function Community() {
       setMessage(null);
       const result = await claimReward(profile.solanaPublicKey);
       setMessage(`Successfully claimed ${result.amount} Playrush coins!`);
-      // Refresh profile
+      
       const updatedData = await loadGameData();
       setProfile(updatedData);
     } catch (err) {
@@ -67,7 +66,6 @@ export default function Community() {
       {error && <p className="text-[#FF00FF] text-center mb-4">{error}</p>}
       {message && <p className="text-[#00CCFF] text-center mb-4">{message}</p>}
 
-      {/* Leaderboard */}
       <div className="glass-card p-6 border border-[#00CCFF] rounded-md max-w-2xl mx-auto mb-8">
         <h3 className="text-2xl font-bold text-[#00CCFF] mb-4">Leaderboard</h3>
         {leaderboard.length === 0 ? (
@@ -89,7 +87,7 @@ export default function Community() {
         )}
       </div>
 
-      {/* Activity Feed */}
+ 
       <div className="glass-card p-6 border border-[#00CCFF] rounded-md max-w-2xl mx-auto mb-8">
         <h3 className="text-2xl font-bold text-[#00CCFF] mb-4">Recent Activity</h3>
         {activities.length === 0 ? (

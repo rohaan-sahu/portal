@@ -34,10 +34,10 @@ export function initBackground() {
     const geometry = new THREE.SphereGeometry(0.5, 32, 32);
     const sphere = new THREE.Mesh(geometry, materials[materialIndex]);
     
-    // Glow effect: slightly larger sphere
+    
     const glowGeometry = new THREE.SphereGeometry(0.55, 32, 32);
     const glowSphere = new THREE.Mesh(glowGeometry, glowMaterials[materialIndex]);
-    sphere.add(glowSphere); // Attach glow to main sphere
+    sphere.add(glowSphere); 
 
     const initialPos = {
       x: Math.random() * 50 - 25,
@@ -49,15 +49,15 @@ export function initBackground() {
     spheres.push(sphere);
     sphereData.push({
       initialPos,
-      speed: Math.random() * 0.05 + 0.05, // Faster: 0.05–0.1
+      speed: Math.random() * 0.05 + 0.05, 
       rotationSpeed: {
-        x: (Math.random() - 0.5) * 0.05, // Faster: ±0.05
+        x: (Math.random() - 0.5) * 0.05, 
         y: (Math.random() - 0.5) * 0.05,
         z: (Math.random() - 0.5) * 0.05
       },
       materialIndex,
-      phase: Math.random() * Math.PI * 2, // Random phase for variation
-      drift: Math.random() * 0.02 + 0.01 // Random drift for realism
+      phase: Math.random() * Math.PI * 2, 
+      drift: Math.random() * 0.02 + 0.01 
     });
   }
 
@@ -99,23 +99,23 @@ export function initBackground() {
 
     spheres.forEach((sphere, i) => {
       const data = sphereData[i];
-      // Damped oscillations with random drift
+     
       sphere.position.set(
-        data.initialPos.x + Math.sin(time * data.speed + data.phase) * 8, // Larger amplitude
+        data.initialPos.x + Math.sin(time * data.speed + data.phase) * 8, 
         data.initialPos.y + Math.cos(time * data.speed * 0.7 + data.phase) * 8,
         data.initialPos.z + Math.sin(time * data.speed * 0.5 + data.phase) * 8
       );
-      // Add subtle random drift
+      
       sphere.position.x += Math.sin(time * data.drift) * 0.5;
       sphere.position.y += Math.cos(time * data.drift) * 0.5;
 
-      // Faster rotation
+    
       sphere.rotation.x += data.rotationSpeed.x;
       sphere.rotation.y += data.rotationSpeed.y;
       sphere.rotation.z += data.rotationSpeed.z;
 
-      // Pulsing effect
-      const pulse = 1 + Math.sin(time * data.speed * 2) * 0.05; // Subtle scale change
+      
+      const pulse = 1 + Math.sin(time * data.speed * 2) * 0.05; 
       sphere.scale.set(pulse, pulse, pulse);
     });
 

@@ -27,7 +27,7 @@ import { getAnalytics, logEvent } from 'firebase/analytics';
 import nacl from 'tweetnacl';
 import { firebaseConfig } from './firebase-config.js';
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -35,12 +35,11 @@ const analytics = process.env.NODE_ENV === 'production' ? getAnalytics(app) : nu
 const googleProvider = new GoogleAuthProvider();
 let isSigningIn = false;
 
-// Set auth persistence to LOCAL
+
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log('Auth persistence set to LOCAL'))
   .catch((error) => console.error('Error setting persistence:', error));
 
-// Derive display name from email
 function deriveNameFromEmail(email) {
   if (!email) return 'UnnamedPlayer';
   const localPart = email.split('@')[0];
@@ -48,7 +47,7 @@ function deriveNameFromEmail(email) {
   return parts.join('').replace(/[^a-zA-Z0-9]/g, '');
 }
 
-// Register user in Firestore
+
 async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
   const userRef = doc(db, 'users', user.uid);
   let attempts = 0;
@@ -86,7 +85,7 @@ async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
   }
 }
 
-// Sign in with Google
+
 async function signInWithGoogle() {
   if (!auth) throw new Error('Auth not initialized');
   if (isSigningIn) return auth.currentUser;
@@ -115,7 +114,6 @@ async function signInWithGoogle() {
   }
 }
 
-// Sign in with Solana (Client-Side)
 async function signInWithSolana() {
   if (!auth) throw new Error('Auth not initialized');
   if (isSigningIn) return auth.currentUser;
@@ -132,27 +130,22 @@ async function signInWithSolana() {
     const message = new TextEncoder().encode('Sign in to Playrush.io');
     const signatureObj = await provider.signMessage(message, 'utf8');
 
-    // Extract signature from object
+    
     const signature = signatureObj.signature;
     console.log('Signature length:', signature?.length, 'Signature:', signature);
-
-    // Validate signature
     if (!signature || signature.length !== 64) {
       throw new Error(`Invalid signature size: ${signature?.length || 0}, expected 64 bytes`);
     }
 
-    // Ensure signature and publicKey are Uint8Array
+   
     const signatureUint8 = signature instanceof Uint8Array ? signature : new Uint8Array(signature);
     const publicKeyUint8 = publicKey.toBytes();
 
-    // Verify signature
+  
     const isValid = nacl.sign.detached.verify(message, signatureUint8, publicKeyUint8);
     if (!isValid) {
       throw new Error('Invalid Solana signature');
-    }
-
-    // Use anonymous Firebase auth
-    const result = await firebaseSignInAnonymously(auth);
+    } const result = await firebaseSignInAnonymously(auth);
     const user = result.user;
 
     await registerUser(user, true, publicKeyStr);
@@ -171,7 +164,7 @@ async function signInWithSolana() {
   }
 }
 
-// Sign in anonymously
+
 async function signInAnonymously() {
   if (!auth) throw new Error('Auth not initialized');
   if (isSigningIn) return auth.currentUser;
@@ -196,7 +189,7 @@ async function signInAnonymously() {
   }
 }
 
-// Sign out
+
 async function signOut() {
   if (!auth) throw new Error('Auth not initialized');
   try {
@@ -211,7 +204,7 @@ async function signOut() {
   }
 }
 
-// Load game data
+
 async function loadGameData() {
   const user = auth.currentUser;
   if (!user) return null;
@@ -229,7 +222,7 @@ async function loadGameData() {
   }
 }
 
-// Save game data
+
 async function saveGameData(data) {
   const user = auth.currentUser;
   if (!user) throw new Error('No user signed in');
@@ -265,7 +258,7 @@ async function saveGameData(data) {
   }
 }
 
-// Get leaderboard
+
 async function getLeaderboard() {
   try {
     const q = query(collection(db, 'leaderboard'), orderBy('highScore', 'desc'), limit(10));
@@ -286,7 +279,7 @@ async function getLeaderboard() {
   }
 }
 
-// Get total users
+
 function getTotalUsers(callback) {
   try {
     if (!auth.currentUser) {
@@ -319,7 +312,6 @@ function getTotalUsers(callback) {
   }
 }
 
-// Update profile
 async function updateProfile(user, profile) {
   try {
     await firebaseUpdateProfile(user, profile);
@@ -332,7 +324,7 @@ async function updateProfile(user, profile) {
   }
 }
 
-// Get recent activity
+
 async function getRecentActivity(limitCount = 5) {
   try {
     const q = query(
@@ -359,7 +351,7 @@ async function getRecentActivity(limitCount = 5) {
   }
 }
 
-// Log activity
+
 async function logActivity(user, action) {
   if (!user) return;
   try {
@@ -375,7 +367,7 @@ async function logActivity(user, action) {
   }
 }
 
-// Claim Solana reward
+
 async function claimReward(solanaPublicKey) {
   if (!auth.currentUser) throw new Error('No user signed in');
   if (!solanaPublicKey) throw new Error('No Solana wallet connected');
@@ -409,7 +401,7 @@ async function claimReward(solanaPublicKey) {
 
     // Update user data
     const currentCoins = docSnap.data().totalCoinsClaimed || 0;
-    const rewardAmount = 10; // Example: 10 coins
+    const rewardAmount = 10; 
     await setDoc(
       userRef,
       {
@@ -419,7 +411,7 @@ async function claimReward(solanaPublicKey) {
       { merge: true }
     );
 
-    // Log activity
+   
     await logActivity(auth.currentUser, `Claimed ${rewardAmount} Playrush coins`);
 
     if (analytics) {

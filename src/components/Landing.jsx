@@ -104,7 +104,7 @@ export default function Landing({ setActiveSection }) {
 
   return (
     <div className="min-h-screen flex flex-col relative z-10">
-      {/* Header */}
+
       <nav className="p-4 flex justify-between items-center bg-[#0A0A0A]" aria-label="Main navigation">
         <h1 className="text-3xl font-bold text-[#00CCFF] font-bebas">Playrush</h1>
         <div className="space-x-4">
@@ -118,14 +118,14 @@ export default function Landing({ setActiveSection }) {
         </div>
       </nav>
 
-      {/* Sign-In Modal */}
+     
       <SignInModal
         isOpen={isSignInModalOpen}
         onClose={() => setIsSignInModalOpen(false)}
         setWalletAddress={setWalletAddress}
       />
 
-      {/* Hero Section */}
+   
       <main
         ref={heroRef}
         className="relative p-12 flex-1 flex flex-col justify-center items-center text-center"
@@ -169,7 +169,7 @@ export default function Landing({ setActiveSection }) {
         </div>
       </main>
 
-      {/* About Us Section */}
+    
       <section ref={aboutRef} className="p-8 bg-[#0A0A0A]" style={{ opacity: 0 }} aria-labelledby="about-title">
         <h2 id="about-title" className="text-4xl font-bold text-[#00CCFF] font-bebas mb-12 text-center animate-neon-glow">
           Bringing Life into Old Memories
@@ -181,7 +181,6 @@ export default function Landing({ setActiveSection }) {
         </div>
       </section>
 
-      {/* Value Proposition Section */}
       <section ref={valueRef} className="p-8 bg-[#0A0A0A]" style={{ opacity: 0 }} aria-labelledby="value-title">
         <h2 id="value-title" className="text-4xl font-bold text-[#00CCFF] font-bebas mb-12 text-center animate-neon-glow">
           Why Playrush?
@@ -201,7 +200,7 @@ export default function Landing({ setActiveSection }) {
         </div>
       </section>
 
-      {/* Featured Games Section */}
+    
       <section ref={gamesRef} className="p-8 bg-[#0A0A0A]" style={{ opacity: 0 }} aria-labelledby="games-title">
         <h2 id="games-title" className="text-4xl font-bold text-[#00CCFF] font-bebas mb-12 text-center animate-neon-glow">
           Featured Games
@@ -241,7 +240,6 @@ export default function Landing({ setActiveSection }) {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="p-8 bg-[#0A0A0A] text-center" aria-label="Footer navigation">
         <p className="text-white font-orbitron mb-4">Rediscover classics, connect globally.</p>
         <nav className="space-x-4 mb-4">

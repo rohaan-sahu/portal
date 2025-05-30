@@ -91,7 +91,7 @@ export default function Roadmap() {
         Playrush Roadmap
       </h2>
 
-      {/* Progress Bar */}
+    
       <div className="max-w-3xl mx-auto mb-8">
         <div className="w-full bg-[#1a1a2e] rounded-full h-4">
           <div
@@ -110,7 +110,7 @@ export default function Roadmap() {
         </p>
       </div>
 
-      {/* Timeline */}
+    
       <div className="relative max-w-3xl mx-auto">
         <div className="absolute left-4 sm:left-8 top-0 bottom-0 w-1 bg-[#00CCFF] animate-pulse timeline-connector"></div>
         {roadmapItems.map((item, index) => (
