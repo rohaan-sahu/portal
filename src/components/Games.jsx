@@ -7,14 +7,14 @@ export default function Games() {
       name: 'Tac-Rush',
       image: 'assets/tictactoe.png',
       status: 'Live',
-      url: 'https://tac-rush.vercel.app',
+      url: 'https://tictactoe.playrush.io',
     },
     {
       id: 2,
       name: 'CyberRush',
       image: 'assets/cyberrush.png',
       status: 'Live',
-      url: 'https://playrush.io',
+      url: 'https://cyberrush.playrush.io',
     },
     {
       id: 3,
