@@ -138,7 +138,7 @@ export default function Landing({ setActiveSection }) {
               <ambientLight intensity={0.5} />
               <pointLight position={[10, 10, 10]} intensity={1} />
               <pointLight position={[0, 0, 2]} intensity={1} color="#00CCFF" />
-              <Model url="src/assets/low_poly_gamepad.glb" scrollY={scrollY} />
+              <Model url="assets/low_poly_gamepad.glb" scrollY={scrollY} />
               <OrbitControls enableZoom={false} enablePan={false} />
             </Canvas>
           </Suspense>
