@@ -176,7 +176,7 @@ export default function Landing({ setActiveSection }) {
         </h2>
         <div className="glass-card p-8 max-w-3xl mx-auto">
           <p className="text-white font-orbitron text-lg">
-            At Playrush, we breathe new life into the games you grew up with, infusing classic titles like Tic-Tac-Toe with Web3 flair. Our neon-lit platform lets you play and connect with communities worldwide. Rediscover the joy of retro gaming, reimagined for today’s world.
+            At Playrush, we breathe new life into the games you grew up with, now with web3 rewards and community engagement 
           </p>
         </div>
       </section>
