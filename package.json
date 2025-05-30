@@ -4,12 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview"
-},
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
   "dependencies": {
+    "@privy-io/react-auth": "^2.13.4",
     "@react-three/drei": "^10.0.7",
     "@react-three/fiber": "^9.1.2",
     "@solana/web3.js": "^1.98.2",

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, signOut } from '../firebase';
-import SignInModal from './SignInModal';
+import SignInModal from './SignIn';
 import { FaBars, FaTimes } from 'react-icons/fa';
 
 export default function NavBar() {
