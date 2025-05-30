@@ -19,7 +19,7 @@ export default function Games() {
     {
       id: 3,
       name: 'CyberRun',
-      image: 'assets/cyberRun.png',
+      image: 'assets/CyberRun.png',
       status: 'Live',
       url: 'https://cyberrun.playrush.io',
     },

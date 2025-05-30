@@ -12,7 +12,7 @@ function Model({ url, scrollY }) {
         scene.position.y = Math.sin(scrollY * 0.001) * 0.2;
       }
     });
-    return <primitive object={scene} scale={[0.35, 0.35, 0.35]} />;
+    return <primitive object={scene} scale={[0.25, 0.25, 0.25]} />;
   } catch (error) {
     console.error(`Failed to load model: ${url}`);
     return null;
