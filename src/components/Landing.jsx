@@ -33,7 +33,7 @@ export default function Landing() {
       url: 'https://tictactoe.playrush.io',
       model: 'assets/tic-tac-toe.glb',
       status: 'Live',
-      image: 'assets/tic-tac-toe.png', 
+      image: 'assets/tictactoe.png',
     },
     {
       id: 'cyberrush',
@@ -41,7 +41,7 @@ export default function Landing() {
       url: 'https://cyberrush.playrush.io',
       model: 'assets/character.glb',
       status: 'Live',
-      image: 'assets/cyberrush.png', 
+      image: 'assets/cyberrush.png',
     },
   ];
 
@@ -173,7 +173,7 @@ export default function Landing() {
           Bringing Life into Old Memories
         </h2>
         <div className="glass-card p-8 max-w-3xl mx-auto">
-          <p className="text-white font-orbitron text-lg">
+          <p className="text-white font-orbitron font-semibold text-lg">
             At Playrush, we breathe new life into the games you grew up with, now with web3 rewards and community engagement
           </p>
         </div>
@@ -226,7 +226,7 @@ export default function Landing() {
                 <h3 className="text-2xl font-bold text-[#FF00FF] font-bebas mb-2">{game.name}</h3>
                 <button
                   className="bg-[#00CCFF] text-[#0A0A0A] px-6 py-2 rounded-md hover:bg-[#FF00FF] font-orbitron font-bold transition-colors touch-manipulation focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-                  onClick={() => (window.location.href = game.url)}
+                  onClick={() => window.location.href = game.url}
                   aria-label={`Play ${game.name}`}
                 >
                   Play Now
