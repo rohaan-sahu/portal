@@ -23,18 +23,15 @@ import {
   signOut as firebaseSignOut,
   updateProfile as firebaseUpdateProfile,
 } from 'firebase/auth';
-import { getAnalytics, logEvent } from 'firebase/analytics';
 import nacl from 'tweetnacl';
 import { firebaseConfig } from './firebase-config.js';
-
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const analytics = process.env.NODE_ENV === 'production' ? getAnalytics(app) : null;
+const analytics = null; // Disable Analytics
 const googleProvider = new GoogleAuthProvider();
 let isSigningIn = false;
-
 
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log('Auth persistence set to LOCAL'))
@@ -46,7 +43,6 @@ function deriveNameFromEmail(email) {
   const parts = localPart.split('.').map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
   return parts.join('').replace(/[^a-zA-Z0-9]/g, '');
 }
-
 
 async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
   const userRef = doc(db, 'users', user.uid);
@@ -85,7 +81,6 @@ async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
   }
 }
 
-
 async function signInWithGoogle() {
   if (!auth) throw new Error('Auth not initialized');
   if (isSigningIn) return auth.currentUser;
@@ -93,12 +88,13 @@ async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
+
     if (!user.displayName) {
       const derivedName = deriveNameFromEmail(user.email);
       await firebaseUpdateProfile(user, { displayName: derivedName });
     }
     await registerUser(user, false);
-    return user; 
+    return user;
   } catch (error) {
     console.error('Google sign-in error:', error.code, error.message, error.stack);
     throw error;
@@ -123,40 +119,31 @@ async function signInWithSolana() {
     const message = new TextEncoder().encode('Sign in to Playrush.io');
     const signatureObj = await provider.signMessage(message, 'utf8');
 
-    
     const signature = signatureObj.signature;
     console.log('Signature length:', signature?.length, 'Signature:', signature);
     if (!signature || signature.length !== 64) {
       throw new Error(`Invalid signature size: ${signature?.length || 0}, expected 64 bytes`);
     }
 
-   
     const signatureUint8 = signature instanceof Uint8Array ? signature : new Uint8Array(signature);
     const publicKeyUint8 = publicKey.toBytes();
 
-  
     const isValid = nacl.sign.detached.verify(message, signatureUint8, publicKeyUint8);
     if (!isValid) {
       throw new Error('Invalid Solana signature');
-    } const result = await firebaseSignInAnonymously(auth);
+    }
+    const result = await firebaseSignInAnonymously(auth);
     const user = result.user;
 
     await registerUser(user, true, publicKeyStr);
-    if (analytics) {
-      logEvent(analytics, 'sign_in', { method: 'solana' });
-    }
     return { user, publicKey: publicKeyStr };
   } catch (error) {
     console.error('Solana sign-in error:', error.message, error.stack);
-    if (analytics) {
-      logEvent(analytics, 'exception', { description: `Solana sign-in error: ${error.message}`, fatal: false });
-    }
     throw error;
   } finally {
     isSigningIn = false;
   }
 }
-
 
 async function signInAnonymously() {
   if (!auth) throw new Error('Auth not initialized');
@@ -167,36 +154,25 @@ async function signInAnonymously() {
     const user = result.user;
 
     await registerUser(user, false);
-    if (analytics) {
-      logEvent(analytics, 'sign_in', { method: 'anonymous' });
-    }
     return result;
   } catch (error) {
     console.error('Anonymous sign-in error:', error.code, error.message, error.stack);
-    if (analytics) {
-      logEvent(analytics, 'exception', { description: `Anonymous sign-in error: ${error.message}`, fatal: false });
-    }
     throw error;
   } finally {
     isSigningIn = false;
   }
 }
 
-
 async function signOut() {
   if (!auth) throw new Error('Auth not initialized');
   try {
     await firebaseSignOut(auth);
     console.log('User signed out successfully');
-    if (analytics) {
-      logEvent(analytics, 'sign_out');
-    }
   } catch (error) {
     console.error('Sign-out error:', error.code, error.message);
     throw error;
   }
 }
-
 
 async function loadGameData() {
   const user = auth.currentUser;
@@ -214,7 +190,6 @@ async function loadGameData() {
     throw error;
   }
 }
-
 
 async function saveGameData(data) {
   const user = auth.currentUser;
@@ -251,7 +226,6 @@ async function saveGameData(data) {
   }
 }
 
-
 async function getLeaderboard() {
   try {
     const q = query(collection(db, 'leaderboard'), orderBy('highScore', 'desc'), limit(10));
@@ -271,7 +245,6 @@ async function getLeaderboard() {
     return [];
   }
 }
-
 
 function getTotalUsers(callback) {
   try {
@@ -317,7 +290,6 @@ async function updateProfile(user, profile) {
   }
 }
 
-
 async function getRecentActivity(limitCount = 5) {
   try {
     const q = query(
@@ -344,7 +316,6 @@ async function getRecentActivity(limitCount = 5) {
   }
 }
 
-
 async function logActivity(user, action) {
   if (!user) return;
   try {
@@ -360,7 +331,6 @@ async function logActivity(user, action) {
   }
 }
 
-
 async function claimReward(solanaPublicKey) {
   if (!auth.currentUser) throw new Error('No user signed in');
   if (!solanaPublicKey) throw new Error('No Solana wallet connected');
@@ -372,7 +342,6 @@ async function claimReward(solanaPublicKey) {
       throw new Error('Invalid Solana account');
     }
 
-    // Verify Solana signature
     const provider = window.solana;
     if (!provider || (!provider.isPhantom && !provider.isSolflare)) {
       throw new Error('Solana wallet not detected');
@@ -392,9 +361,8 @@ async function claimReward(solanaPublicKey) {
       throw new Error('Invalid reward claim signature');
     }
 
-    // Update user data
     const currentCoins = docSnap.data().totalCoinsClaimed || 0;
-    const rewardAmount = 10; 
+    const rewardAmount = 10;
     await setDoc(
       userRef,
       {
@@ -404,18 +372,11 @@ async function claimReward(solanaPublicKey) {
       { merge: true }
     );
 
-   
     await logActivity(auth.currentUser, `Claimed ${rewardAmount} Playrush coins`);
 
-    if (analytics) {
-      logEvent(analytics, 'reward_claim', { method: 'solana', amount: rewardAmount });
-    }
     return { success: true, amount: rewardAmount };
   } catch (error) {
     console.error('Claim reward error:', error.message);
-    if (analytics) {
-      logEvent(analytics, 'exception', { description: `Reward claim error: ${error.message}`, fatal: false });
-    }
     throw error;
   }
 }

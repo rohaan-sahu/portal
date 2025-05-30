@@ -1,3 +1,4 @@
+// src/components/Games.jsx
 import { useEffect, useRef } from 'react';
 
 export default function Games() {
@@ -5,7 +6,7 @@ export default function Games() {
     {
       id: 1,
       name: 'Tac-Rush',
-      image: 'assets/tictactoe.png',
+      image: 'assets/tictactoe.png', 
       status: 'Live',
       url: 'https://tictactoe.playrush.io',
     },
@@ -19,7 +20,7 @@ export default function Games() {
     {
       id: 3,
       name: 'CyberRun',
-      image: 'assets/CyberRun.png',
+      image: 'assets/CyberRun.png', 
       status: 'Live',
       url: 'https://cyberrun.playrush.io',
     },

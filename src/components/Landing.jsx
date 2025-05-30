@@ -1,4 +1,5 @@
 import { useEffect, useRef, Suspense, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls, useGLTF } from '@react-three/drei';
 import SignInModal from './SignIn';
@@ -19,7 +20,8 @@ function Model({ url, scrollY }) {
   }
 }
 
-export default function Landing({ setActiveSection }) {
+export default function Landing() {
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [walletAddress, setWalletAddress] = useState(null);
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
@@ -28,10 +30,10 @@ export default function Landing({ setActiveSection }) {
     {
       id: 'tacRush',
       name: 'Tac-Rush',
-      url: 'https://tacrush.playrush.io',
+      url: 'https://tictactoe.playrush.io',
       model: 'assets/tic-tac-toe.glb',
       status: 'Live',
-      image: 'assets/tic-tac-toe.png',
+      image: 'assets/tic-tac-toe.png', 
     },
     {
       id: 'cyberrush',
@@ -39,7 +41,7 @@ export default function Landing({ setActiveSection }) {
       url: 'https://cyberrush.playrush.io',
       model: 'assets/character.glb',
       status: 'Live',
-      image: 'assets/character.png',
+      image: 'assets/cyberrush.png', 
     },
   ];
 
@@ -104,7 +106,6 @@ export default function Landing({ setActiveSection }) {
 
   return (
     <div className="min-h-screen flex flex-col relative z-10">
-
       <nav className="p-4 flex justify-between items-center bg-[#0A0A0A]" aria-label="Main navigation">
         <h1 className="text-3xl font-bold text-[#00CCFF] font-bebas">Playrush</h1>
         <div className="space-x-4">
@@ -118,14 +119,12 @@ export default function Landing({ setActiveSection }) {
         </div>
       </nav>
 
-     
       <SignInModal
         isOpen={isSignInModalOpen}
         onClose={() => setIsSignInModalOpen(false)}
         setWalletAddress={setWalletAddress}
       />
 
-   
       <main
         ref={heroRef}
         className="relative p-12 flex-1 flex flex-col justify-center items-center text-center"
@@ -153,14 +152,14 @@ export default function Landing({ setActiveSection }) {
           <div className="space-x-4">
             <button
               className="bg-[#00CCFF] text-[#0A0A0A] px-8 py-3 rounded-md hover:bg-[#FF00FF] font-orbitron font-bold transition-colors touch-manipulation focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-              onClick={() => setActiveSection('games')}
+              onClick={() => navigate('/games')}
               aria-label="Explore games"
             >
               Explore Games
             </button>
             <button
               className="bg-[#FF00FF] text-[#0A0A0A] px-8 py-3 rounded-md hover:bg-[#00CCFF] font-orbitron font-bold transition-colors touch-manipulation focus:outline-none focus:ring-2 focus:ring-[#00CCFF]"
-              onClick={() => setActiveSection('dashboard')}
+              onClick={() => setIsSignInModalOpen(true)}
               aria-label="Join now"
             >
               Join Now
@@ -169,14 +168,13 @@ export default function Landing({ setActiveSection }) {
         </div>
       </main>
 
-    
       <section ref={aboutRef} className="p-8 bg-[#0A0A0A]" style={{ opacity: 0 }} aria-labelledby="about-title">
         <h2 id="about-title" className="text-4xl font-bold text-[#00CCFF] font-bebas mb-12 text-center animate-neon-glow">
           Bringing Life into Old Memories
         </h2>
         <div className="glass-card p-8 max-w-3xl mx-auto">
           <p className="text-white font-orbitron text-lg">
-            At Playrush, we breathe new life into the games you grew up with, now with web3 rewards and community engagement 
+            At Playrush, we breathe new life into the games you grew up with, now with web3 rewards and community engagement
           </p>
         </div>
       </section>
@@ -200,7 +198,6 @@ export default function Landing({ setActiveSection }) {
         </div>
       </section>
 
-    
       <section ref={gamesRef} className="p-8 bg-[#0A0A0A]" style={{ opacity: 0 }} aria-labelledby="games-title">
         <h2 id="games-title" className="text-4xl font-bold text-[#00CCFF] font-bebas mb-12 text-center animate-neon-glow">
           Featured Games
@@ -245,21 +242,21 @@ export default function Landing({ setActiveSection }) {
         <nav className="space-x-4 mb-4">
           <button
             className="text-[#00CCFF] hover:text-[#FF00FF] font-orbitron focus:outline-none focus:underline"
-            onClick={() => setActiveSection('community')}
+            onClick={() => navigate('/community')}
             aria-label="Go to community section"
           >
             Community
           </button>
           <button
             className="text-[#00CCFF] hover:text-[#FF00FF] font-orbitron focus:outline-none focus:underline"
-            onClick={() => setActiveSection('roadmap')}
+            onClick={() => navigate('/roadmap')}
             aria-label="Go to roadmap section"
           >
             Roadmap
           </button>
           <button
             className="text-[#00CCFF] hover:text-[#FF00FF] font-orbitron focus:outline-none focus:underline"
-            onClick={() => setActiveSection('profile')}
+            onClick={() => navigate('/profile')}
             aria-label="Go to profile section"
           >
             Profile

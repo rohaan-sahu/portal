@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { signInWithGoogle, signInWithSolana } from '../firebase';
 
-export default function SignInModal({ isOpen, onClose, setAccount }) {
+export default function SignInModal({ isOpen, onClose, setWalletAddress }) {
   const modalRef = useRef(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(null);
@@ -30,7 +30,7 @@ export default function SignInModal({ isOpen, onClose, setAccount }) {
     setError(null);
     try {
       const { user, publicKey } = await signInWithSolana();
-      setAccount({ ...user, solanaPublicKey: publicKey });
+      setWalletAddress({ ...user, solanaPublicKey: publicKey });
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to connect Solana wallet.');
@@ -42,16 +42,16 @@ export default function SignInModal({ isOpen, onClose, setAccount }) {
 
   return (
     <div
-  className="fixed inset-0 bg-[#0A0A0A] bg-opacity-75 flex items-center justify-center min-h-screen z-50"
-  role="dialog"
-  aria-labelledby="signin-modal-title"
-  aria-modal="true"
->
-  <div
-  ref={modalRef}
-  className="glass-card p-8 max-w-md w-full max-h-[80vh] overflow-auto rounded-md bg-[#0A0A0A] border border-[#00CCFF] mx-auto"
-  tabIndex="-1"
->
+      className="fixed inset-0 bg-[#0A0A0A] bg-opacity-75 flex items-center justify-center min-h-screen z-50"
+      role="dialog"
+      aria-labelledby="signin-modal-title"
+      aria-modal="true"
+    >
+      <div
+        ref={modalRef}
+        className="glass-card p-8 max-w-md w-full max-h-[80vh] overflow-auto rounded-md bg-[#0A0A0A] border border-[#00CCFF] mx-auto"
+        tabIndex="-1"
+      >
         <h2 id="signin-modal-title" className="text-2xl font-bold text-[#00CCFF] font-bebas mb-4">
           Sign In
         </h2>

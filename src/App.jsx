@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import NavBar from './components/Nav';
 import Landing from './components/Landing';
