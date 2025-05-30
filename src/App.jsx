@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import NavBar from './components/NavBar';
+import NavBar from './components/Nav';
 import Landing from './components/Landing';
 import Games from './components/Games';
 import Roadmap from './components/Roadmap';

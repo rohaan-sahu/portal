@@ -18,10 +18,10 @@ export default function Games() {
     },
     {
       id: 3,
-      name: 'RetroBlitz',
-      image: 'https://via.placeholder.com/150',
-      status: 'Upcoming',
-      url: '#',
+      name: 'CyberRun',
+      image: 'src/assets/cyberrun.png',
+      status: 'Live',
+      url: 'https://cyberrun.playrush.io',
     },
   ];
 
