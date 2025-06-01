@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth, loadGameData, updateProfile } from '../firebase';
+import { auth, loadGameData, updateProfile } from '../firebase'
 
 export default function Profile() {
   const [user, loading] = useAuthState(auth);
