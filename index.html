@@ -1,10 +1,35 @@
+<!-- public/index.html (Updated styles for brand blend, add gradients/shadows) -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Playrush.io - Decentralized Game Launcher</title>
+    <title>Playrush Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Bebas+Neue&display=swap');
+      .font-orbitron { font-family: 'Orbitron', sans-serif; }
+      .font-bebas { font-family: 'Bebas Neue', sans-serif; }
+      .glass-card {
+        background: rgba(26, 26, 46, 0.5);
+        backdrop-filter: blur(10px);
+      }
+      .animate-neon-glow {
+        animation: neon-glow 1.5s ease-in-out infinite alternate;
+      }
+      @keyframes neon-glow {
+        from { text-shadow: 0 0 5px #3a86ff, 0 0 10px #3a86ff; }
+        to { text-shadow: 0 0 10px #ff006e, 0 0 20px #ff006e; }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.5s ease-out forwards;
+        opacity: 0;
+      }
+      @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
