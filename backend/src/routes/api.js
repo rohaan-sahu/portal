@@ -1,0 +1,63 @@
+const express = require('express');
+const { verifyPrivyToken, verifyApiKey, validateScore } = require('../middleware/auth');
+const { 
+  submitScore,
+  getUserProfile,
+  updateUserProfile,
+  getGlobalLeaderboard,
+  getGameLeaderboard
+} = require('../controllers/scoreController');
+const { db } = require('../config/firebase');
+
+const router = express.Router();
+
+// Public routes (no authentication required)
+router.get('/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Get recent community activities
+router.get('/community/recent-activity', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Database service not available' 
+      });
+    }
+    
+    const activitiesRef = db.collection('communityActivities');
+    const q = activitiesRef.orderBy('timestamp', 'desc').limit(20);
+    const querySnapshot = await q.get();
+    
+    const activities = [];
+    querySnapshot.forEach((doc) => {
+      activities.push({ id: doc.id, ...doc.data() });
+    });
+    
+    res.status(200).json({
+      success: true,
+      data: activities
+    });
+  } catch (error) {
+    console.error('Error fetching community activities:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Internal server error' 
+    });
+  }
+});
+
+// Protected routes (require authentication)
+router.get('/users/:userId', verifyPrivyToken, getUserProfile);
+router.put('/users/:userId', verifyPrivyToken, updateUserProfile);
+router.post('/submit-score', verifyPrivyToken, verifyApiKey, validateScore, submitScore);
+router.get('/leaderboard/global', getGlobalLeaderboard);
+router.get('/leaderboard/:gameId', getGameLeaderboard);
+
+// Catch-all route for unmatched routes
+router.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
+});
+
+module.exports = router;

@@ -8,396 +8,166 @@ import {
   serverTimestamp,
   collection,
   query,
+  where, // Added where for permission-based filtering
   orderBy,
   limit,
   getDocs,
   addDoc,
+  updateDoc,
+  increment
 } from 'firebase/firestore';
-import {
-  getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signInAnonymously as firebaseSignInAnonymously,
-  setPersistence,
-  browserLocalPersistence,
-  signOut as firebaseSignOut,
-  updateProfile as firebaseUpdateProfile,
-} from 'firebase/auth';
+import { getAuth } from 'firebase/auth'; // Import Firebase Auth
 import nacl from 'tweetnacl';
 import { firebaseConfig } from './firebase-config.js';
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
-const analytics = null; // Disable Analytics
-const googleProvider = new GoogleAuthProvider();
-let isSigningIn = false;
+const auth = getAuth(app); // Initialize Firebase Authentication
 
-setPersistence(auth, browserLocalPersistence)
-  .then(() => console.log('Auth persistence set to LOCAL'))
-  .catch((error) => console.error('Error setting persistence:', error));
-
-function deriveNameFromEmail(email) {
-  if (!email) return 'UnnamedPlayer';
-  const localPart = email.split('@')[0];
-  const parts = localPart.split('.').map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase());
-  return parts.join('').replace(/[^a-zA-Z0-9]/g, '');
-}
-
-async function registerUser(user, isWeb3 = false, solanaPublicKey = null) {
-  const userRef = doc(db, 'users', user.uid);
-  let attempts = 0;
-  const maxAttempts = 3;
-  while (attempts < maxAttempts) {
-    try {
-      const docSnap = await getDoc(userRef);
-      if (!docSnap.exists()) {
-        const defaultData = {
-          uid: user.uid,
-          displayName: user.displayName || deriveNameFromEmail(user.email) || `Player_${user.uid.slice(0, 8)}`,
-          createdAt: serverTimestamp(),
-          isWeb3: isWeb3,
-          solanaPublicKey: isWeb3 ? solanaPublicKey : null,
-          highScore: 0,
-          timesPlayed: 0,
-          totalCoinsClaimed: 0,
-          lastActive: serverTimestamp(),
-        };
-        await setDoc(userRef, defaultData);
-        console.log(`User registered: ${user.uid}, Web3: ${isWeb3}`);
-        if (typeof window.updateUserCount === 'function') {
-          window.updateUserCount();
-        }
+// User functions
+async function registerUser(userId, userData) {
+  const userRef = doc(db, 'users', userId);
+  try {
+    const docSnap = await getDoc(userRef);
+    if (!docSnap.exists()) {
+      const defaultData = {
+        uid: userId,
+        displayName: userData.displayName || `Player_${userId.slice(0, 8)}`,
+        createdAt: serverTimestamp(),
+        isWeb3: userData.isWeb3 || false,
+        solanaPublicKey: userData.solanaPublicKey || null,
+        highScore: 0,
+        timesPlayed: 0,
+        totalCoinsClaimed: 0,
+        lastActive: serverTimestamp(),
+      };
+      await setDoc(userRef, defaultData);
+      console.log(`User registered: ${userId}`);
+      if (typeof window.updateUserCount === 'function') {
+        window.updateUserCount();
       }
-      return;
-    } catch (error) {
-      attempts++;
-      console.error(`Register user attempt ${attempts} failed:`, error.code, error.message);
-      if (attempts === maxAttempts) {
-        throw new Error(`Failed to register user after ${maxAttempts} attempts: ${error.message}`);
-      }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
-  }
-}
-
-async function signInWithGoogle() {
-  if (!auth) throw new Error('Auth not initialized');
-  if (isSigningIn) return auth.currentUser;
-  isSigningIn = true;
-  try {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
-
-    if (!user.displayName) {
-      const derivedName = deriveNameFromEmail(user.email);
-      await firebaseUpdateProfile(user, { displayName: derivedName });
-    }
-    await registerUser(user, false);
-    return user;
+    return;
   } catch (error) {
-    console.error('Google sign-in error:', error.code, error.message, error.stack);
-    throw error;
-  } finally {
-    isSigningIn = false;
-  }
-}
-
-async function signInWithSolana() {
-  if (!auth) throw new Error('Auth not initialized');
-  if (isSigningIn) return auth.currentUser;
-  isSigningIn = true;
-  try {
-    if (!window.solana || (!window.solana.isPhantom && !window.solana.isSolflare)) {
-      throw new Error('Solana wallet not detected. Please install Solflare or Phantom.');
-    }
-
-    const provider = window.solana;
-    const { publicKey } = await provider.connect();
-    const publicKeyStr = publicKey.toString();
-
-    const message = new TextEncoder().encode('Sign in to Playrush.io');
-    const signatureObj = await provider.signMessage(message, 'utf8');
-
-    const signature = signatureObj.signature;
-    console.log('Signature length:', signature?.length, 'Signature:', signature);
-    if (!signature || signature.length !== 64) {
-      throw new Error(`Invalid signature size: ${signature?.length || 0}, expected 64 bytes`);
-    }
-
-    const signatureUint8 = signature instanceof Uint8Array ? signature : new Uint8Array(signature);
-    const publicKeyUint8 = publicKey.toBytes();
-
-    const isValid = nacl.sign.detached.verify(message, signatureUint8, publicKeyUint8);
-    if (!isValid) {
-      throw new Error('Invalid Solana signature');
-    }
-    const result = await firebaseSignInAnonymously(auth);
-    const user = result.user;
-
-    await registerUser(user, true, publicKeyStr);
-    return { user, publicKey: publicKeyStr };
-  } catch (error) {
-    console.error('Solana sign-in error:', error.message, error.stack);
-    throw error;
-  } finally {
-    isSigningIn = false;
-  }
-}
-
-async function signInAnonymously() {
-  if (!auth) throw new Error('Auth not initialized');
-  if (isSigningIn) return auth.currentUser;
-  isSigningIn = true;
-  try {
-    const result = await firebaseSignInAnonymously(auth);
-    const user = result.user;
-
-    await registerUser(user, false);
-    return result;
-  } catch (error) {
-    console.error('Anonymous sign-in error:', error.code, error.message, error.stack);
-    throw error;
-  } finally {
-    isSigningIn = false;
-  }
-}
-
-async function signOut() {
-  if (!auth) throw new Error('Auth not initialized');
-  try {
-    await firebaseSignOut(auth);
-    console.log('User signed out successfully');
-  } catch (error) {
-    console.error('Sign-out error:', error.code, error.message);
+    console.error('Error registering user:', error);
     throw error;
   }
 }
 
 async function loadGameData() {
-  const user = auth.currentUser;
-  if (!user) return null;
-  const docRef = doc(db, 'users', user.uid);
+  // This function would typically fetch user-specific game data
+  // For now, we'll return mock data
+  return {
+    highScore: 0,
+    timesPlayed: 0,
+    totalCoinsClaimed: 0
+  };
+}
+
+async function updateProfile(user, profileData) {
+  const userRef = doc(db, 'users', user.id);
   try {
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      return data;
-    }
-    return null;
+    await updateDoc(userRef, profileData);
+    console.log(`Profile updated for user: ${user.id}`);
   } catch (error) {
-    console.error('Load game data error:', error.code, error.message);
+    console.error('Error updating profile:', error);
     throw error;
   }
 }
 
-async function saveGameData(data) {
-  const user = auth.currentUser;
-  if (!user) throw new Error('No user signed in');
-  const userRef = doc(db, 'users', user.uid);
-  try {
-    const docSnap = await getDoc(userRef);
-    if (docSnap.exists() && docSnap.data().isWeb3) {
-      return;
-    }
-    const updatedData = {
-      ...data,
-      uid: user.uid,
-      displayName: user.displayName || data.displayName || 'UnnamedPlayer',
-      lastActive: serverTimestamp(),
-    };
-    await setDoc(userRef, updatedData, { merge: true });
-    if (updatedData.highScore) {
-      const leaderboardRef = doc(db, 'leaderboard', user.uid);
-      await setDoc(
-        leaderboardRef,
-        {
-          uid: user.uid,
-          displayName: updatedData.displayName,
-          highScore: updatedData.highScore,
-          lastUpdated: serverTimestamp(),
-        },
-        { merge: true }
-      );
-    }
-  } catch (error) {
-    console.error('Save game data error:', error.code, error.message);
-    throw error;
-  }
-}
-
+// Leaderboard functions
 async function getLeaderboard() {
   try {
-    const q = query(collection(db, 'leaderboard'), orderBy('highScore', 'desc'), limit(10));
+    const leaderboardRef = collection(db, 'leaderboards', 'global', 'entries');
+    const q = query(leaderboardRef, orderBy('score', 'desc'), limit(100));
     const querySnapshot = await getDocs(q);
+    
     const leaderboard = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      leaderboard.push({
-        uid: doc.id,
-        displayName: data.displayName || 'UnnamedPlayer',
-        highScore: data.highScore || 0,
-      });
+      leaderboard.push({ id: doc.id, ...doc.data() });
     });
+    
     return leaderboard;
   } catch (error) {
-    console.error('Get Leaderboard Error:', error.code, error.message);
-    return [];
-  }
-}
-
-function getTotalUsers(callback) {
-  try {
-    if (!auth.currentUser) {
-      console.log('Skipping getTotalUsers: no authenticated user');
-      callback(0);
-      return () => {};
-    }
-    console.log('Setting up getTotalUsers query');
-    const q = query(collection(db, 'users'));
-    return onSnapshot(
-      q,
-      { includeMetadataChanges: true },
-      (snapshot) => {
-        if (snapshot.metadata.fromCache) {
-          console.warn('User count from cache, may be stale');
-        }
-        const count = snapshot.size;
-        console.log(`Total users: ${count}, hasPendingWrites: ${snapshot.metadata.hasPendingWrites}`);
-        callback(count || 0);
-      },
-      (error) => {
-        console.error('Total users query error:', error.code, error.message, error.stack);
-        callback(0);
-      }
-    );
-  } catch (error) {
-    console.error('Get total users setup error:', error.message, error.stack);
-    callback(0);
-    return () => {};
-  }
-}
-
-async function updateProfile(user, profile) {
-  try {
-    await firebaseUpdateProfile(user, profile);
-    if (profile.displayName) {
-      await saveGameData({ displayName: profile.displayName });
-    }
-  } catch (error) {
-    console.error('Profile update error:', error.code, error.message);
+    console.error('Error fetching leaderboard:', error);
     throw error;
   }
 }
 
-async function getRecentActivity(limitCount = 5) {
+// Game functions
+async function submitScore(userId, gameId, score) {
   try {
-    const q = query(
-      collection(db, 'activity'),
-      orderBy('timestamp', 'desc'),
-      limit(limitCount)
-    );
+    // Add score to game-specific leaderboard
+    const gameLeaderboardRef = collection(db, 'leaderboards', `${gameId}-all-time`, 'entries');
+    const scoreDocRef = doc(gameLeaderboardRef, userId);
+    const scoreDoc = await getDoc(scoreDocRef);
+    
+    if (scoreDoc.exists()) {
+      const currentScore = scoreDoc.data().score;
+      if (score > currentScore) {
+        await updateDoc(scoreDocRef, {
+          score: score,
+          updatedAt: serverTimestamp()
+        });
+      }
+    } else {
+      await setDoc(scoreDocRef, {
+        userId: userId,
+        score: score,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    }
+    
+    // Update user's total score
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      totalScore: increment(score),
+      timesPlayed: increment(1),
+      lastActive: serverTimestamp()
+    });
+    
+    console.log(`Score submitted for user ${userId} in game ${gameId}: ${score}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error submitting score:', error);
+    throw error;
+  }
+}
+
+// Community functions
+async function getRecentActivity() {
+  try {
+    const user = auth.currentUser; // Get current authenticated user
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Ensure the user is authorized to read community activities
+    const activitiesRef = collection(db, 'communityActivities');
+    const q = query(activitiesRef, where('readers', 'array-contains', user.uid), orderBy('timestamp', 'desc'), limit(20));
     const querySnapshot = await getDocs(q);
+
     const activities = [];
     querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      activities.push({
-        id: doc.id,
-        userId: data.userId,
-        displayName: data.displayName || 'UnnamedPlayer',
-        action: data.action,
-        timestamp: data.timestamp?.toDate().toLocaleString() || 'Unknown',
-      });
+      activities.push({ id: doc.id, ...doc.data() });
     });
+
     return activities;
   } catch (error) {
-    console.error('Get recent activity error:', error.code, error.message);
-    return [];
-  }
-}
-
-async function logActivity(user, action) {
-  if (!user) return;
-  try {
-    const activityRef = collection(db, 'activity');
-    await addDoc(activityRef, {
-      userId: user.uid,
-      displayName: user.displayName || 'UnnamedPlayer',
-      action,
-      timestamp: serverTimestamp(),
-    });
-  } catch (error) {
-    console.error('Log activity error:', error.code, error.message);
-  }
-}
-
-async function claimReward(solanaPublicKey) {
-  if (!auth.currentUser) throw new Error('No user signed in');
-  if (!solanaPublicKey) throw new Error('No Solana wallet connected');
-
-  const userRef = doc(db, 'users', auth.currentUser.uid);
-  try {
-    const docSnap = await getDoc(userRef);
-    if (!docSnap.exists() || !docSnap.data().isWeb3 || docSnap.data().solanaPublicKey !== solanaPublicKey) {
-      throw new Error('Invalid Solana account');
-    }
-
-    const provider = window.solana;
-    if (!provider || (!provider.isPhantom && !provider.isSolflare)) {
-      throw new Error('Solana wallet not detected');
-    }
-
-    const message = new TextEncoder().encode(`Claim Playrush reward for ${solanaPublicKey}`);
-    const signatureObj = await provider.signMessage(message, 'utf8');
-    const signature = signatureObj.signature;
-    if (!signature || signature.length !== 64) {
-      throw new Error(`Invalid signature size: ${signature?.length || 0}`);
-    }
-
-    const signatureUint8 = signature instanceof Uint8Array ? signature : new Uint8Array(signature);
-    const publicKeyUint8 = (await provider.connect()).publicKey.toBytes();
-    const isValid = nacl.sign.detached.verify(message, signatureUint8, publicKeyUint8);
-    if (!isValid) {
-      throw new Error('Invalid reward claim signature');
-    }
-
-    const currentCoins = docSnap.data().totalCoinsClaimed || 0;
-    const rewardAmount = 10;
-    await setDoc(
-      userRef,
-      {
-        totalCoinsClaimed: currentCoins + rewardAmount,
-        lastActive: serverTimestamp(),
-      },
-      { merge: true }
-    );
-
-    await logActivity(auth.currentUser, `Claimed ${rewardAmount} Playrush coins`);
-
-    return { success: true, amount: rewardAmount };
-  } catch (error) {
-    console.error('Claim reward error:', error.message);
+    console.error('Error fetching recent activity:', error);
     throw error;
   }
 }
 
 export {
-  auth,
   db,
-  doc,
-  setDoc,
-  getDoc,
+  auth, // Export auth for general access
   registerUser,
-  signInWithGoogle,
-  signInWithSolana,
-  signInAnonymously,
-  signOut,
   loadGameData,
-  saveGameData,
-  getTotalUsers,
-  getLeaderboard,
   updateProfile,
-  getRecentActivity,
-  logActivity,
-  claimReward,
+  getLeaderboard,
+  submitScore,
+  getRecentActivity
 };

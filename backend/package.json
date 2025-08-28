@@ -1,0 +1,22 @@
+{
+  "name": "playrush-backend",
+  "version": "1.0.0",
+  "description": "Backend server for Playrush gaming portal",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "@privy-io/react-auth": "^2.22.0",
+    "@privy-io/server-auth": "^1.2.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "firebase-admin": "^13.1.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}

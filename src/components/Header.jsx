@@ -1,18 +1,17 @@
 
 import { useState } from 'react';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { useAuth } from '../PrivyAuth';
 import { Link } from 'react-router-dom';
-import { auth, signOut } from '../firebase';
 import SignInModal from './SignInModal';
 
 export default function Header() {
-  const [user] = useAuthState(auth);
+  const { authenticated, user, logout } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletAddress, setWalletAddress] = useState(null);
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
     } catch (err) {
       console.error('Sign out error:', err);
     }
@@ -31,9 +30,13 @@ export default function Header() {
           <Link to="/profile" className="text-white hover:text-[#ff006e] transition">Profile</Link>
         </div>
         <div>
-          {user ? (
+          {authenticated && user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-[#3a86ff]">{user.displayName || 'Player'}</span>
+              <span className="text-[#3a86ff]">
+                {user.google?.name || user.wallet?.address ? 
+                 (user.google?.name || `${user.wallet?.address?.substring(0, 6)}...${user.wallet?.address?.substring(user.wallet?.address?.length - 4)}`) : 
+                 'Player'}
+              </span>
               <button onClick={handleSignOut} className="bg-[#ff006e] text-white px-4 py-1 rounded hover:bg-[#8338ec] transition">
                 Sign Out
               </button>
