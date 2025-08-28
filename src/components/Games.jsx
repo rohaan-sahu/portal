@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../PrivyAuth';
-import { fetchGameDetails } from '../api';
 
 // Game data - in a production implementation, this would come from your backend
 const gamesData = [
