@@ -3,11 +3,18 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+  base: './',
   plugins: [react()],
   build: {
     outDir: 'dist',
     rollupOptions: {
-      external: []
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/firestore', 'firebase/auth'],
+          privy: ['@privy-io/react-auth']
+        }
+      }
     }
   },
   assetsInclude: ['**/*.glb'],
@@ -18,5 +25,12 @@ export default defineConfig({
   },
   define: {
     global: 'globalThis',
+  },
+  server: {
+    mimeTypes: {
+      'js': 'application/javascript',
+      'mjs': 'application/javascript',
+      'json': 'application/json'
+    }
   }
 });
