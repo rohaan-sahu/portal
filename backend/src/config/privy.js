@@ -5,6 +5,7 @@ let privy = null;
 // Initialize Privy client only if we have credentials
 if (process.env.PRIVY_APP_ID && process.env.PRIVY_APP_SECRET) {
   try {
+    console.log('Initializing Privy client with APP ID:', process.env.PRIVY_APP_ID);
     privy = new PrivyClient({
       appId: process.env.PRIVY_APP_ID,
       appSecret: process.env.PRIVY_APP_SECRET,

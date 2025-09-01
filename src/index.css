@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Bebas+Neue&display=swap');
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --neon-blue: #00CCFF;
   --neon-pink: #FF00FF;

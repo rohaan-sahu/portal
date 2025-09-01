@@ -95,7 +95,7 @@ export const PrivyAuthProvider = ({ children }) => {
         appearance: {
           theme: 'dark',
           accentColor: '#676FFF',
-          logo: 'https://playrush.io/logo.png',
+          logo: '/assets/playrush-logo.png',
         },
         embeddedWallets: {
           createOnLogin: 'users-without-wallets',

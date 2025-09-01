@@ -49,7 +49,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/v1', apiRoutes);
+app.use('/api', apiRoutes);
 
 // 404 handler
 app.use((req, res) => {

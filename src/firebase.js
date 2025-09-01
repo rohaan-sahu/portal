@@ -82,16 +82,17 @@ async function getLeaderboard() {
     const leaderboardRef = collection(db, 'leaderboards', 'global', 'entries');
     const q = query(leaderboardRef, orderBy('score', 'desc'), limit(100));
     const querySnapshot = await getDocs(q);
-    
+
     const leaderboard = [];
     querySnapshot.forEach((doc) => {
       leaderboard.push({ id: doc.id, ...doc.data() });
     });
-    
+
     return leaderboard;
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
-    throw error;
+    // Return empty array on error to prevent app crash
+    return [];
   }
 }
 
@@ -137,16 +138,15 @@ async function submitScore(userId, gameId, score) {
 }
 
 // Community functions
-async function getRecentActivity() {
+async function getRecentActivity(userId) {
   try {
-    const user = auth.currentUser; // Get current authenticated user
-    if (!user) {
+    if (!userId) {
       throw new Error('User not authenticated');
     }
 
     // Ensure the user is authorized to read community activities
     const activitiesRef = collection(db, 'communityActivities');
-    const q = query(activitiesRef, where('readers', 'array-contains', user.uid), orderBy('timestamp', 'desc'), limit(20));
+    const q = query(activitiesRef, where('readers', 'array-contains', userId), orderBy('timestamp', 'desc'), limit(20));
     const querySnapshot = await getDocs(q);
 
     const activities = [];
@@ -157,7 +157,8 @@ async function getRecentActivity() {
     return activities;
   } catch (error) {
     console.error('Error fetching recent activity:', error);
-    throw error;
+    // Return empty array on error to prevent app crash
+    return [];
   }
 }
 

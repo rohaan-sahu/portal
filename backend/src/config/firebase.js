@@ -5,7 +5,16 @@ const fs = require('fs');
 let db = null;
 
 // Check if service account file exists
-const serviceAccountPath = path.join(__dirname, '..', '..', 'runner-18abe-firebase-adminsdk-fbsvc-eee2faafd9.json');
+let serviceAccountPath = path.join(__dirname, '..', '..', 'runner-18abe-firebase-adminsdk-fbsvc-eee2faafd9.json');
+
+// Also check environment variable path
+const envServiceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY_PATH;
+if (envServiceAccountPath) {
+  const resolvedPath = path.resolve(envServiceAccountPath);
+  if (fs.existsSync(resolvedPath)) {
+    serviceAccountPath = resolvedPath;
+  }
+}
 
 try {
   if (fs.existsSync(serviceAccountPath)) {

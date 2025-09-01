@@ -1,11 +1,13 @@
 // src/App.jsx (Updated with Header and responsive nav)
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import Header from './components/Header'; // New component
 import Games from './components/Games';
 import Community from './components/Community';
 import Profile from './components/Profile';
 import Leaderboard from './components/Leaderboard';
+import SignInModal from './components/SignInModal';
 
 const BottomNav = () => {
   const location = useLocation();
@@ -33,20 +35,23 @@ const BottomNav = () => {
 };
 
 export default function App() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <Router>
       <div className="bg-[#0A0A0A] text-white min-h-screen relative font-orbitron">
-        <Header /> {/* New: Always show header */}
+        <Header onOpenModal={() => setIsModalOpen(true)} /> {/* Pass open modal function */}
         <div className="pb-16 sm:pb-0 pt-16"> {/* Padding for header */}
           <Routes>
-            <Route path="/" element={<Games />} />
-            <Route path="/games" element={<Games />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/" element={<Games onOpenModal={() => setIsModalOpen(true)} />} />
+            <Route path="/games" element={<Games onOpenModal={() => setIsModalOpen(true)} />} />
+            <Route path="/community" element={<Community onOpenModal={() => setIsModalOpen(true)} />} />
+            <Route path="/profile" element={<Profile onOpenModal={() => setIsModalOpen(true)} />} />
+            <Route path="/leaderboard" element={<Leaderboard onOpenModal={() => setIsModalOpen(true)} />} />
           </Routes>
         </div>
         <BottomNav />
+        <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       </div>
     </Router>
   );

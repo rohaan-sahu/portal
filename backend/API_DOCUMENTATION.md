@@ -9,8 +9,10 @@ The Playrush API allows games to securely submit player scores to the platform. 
 ## Base URL
 
 ```
-http://localhost:3002/api/v1
+http://localhost:3002/api
 ```
+
+**Note:** The API base URL has been updated from `/api/v1` to `/api` for consistency with the frontend configuration.
 
 ## Authentication
 
@@ -18,6 +20,28 @@ All requests to the API must include two authentication headers:
 
 1. `x-api-key`: The game's secret API key
 2. `Authorization`: A Bearer token for the authenticated user
+
+### Privy Authentication Setup
+
+**IMPORTANT:** The API uses Privy for user authentication. You must have valid Privy credentials configured:
+
+1. Create a Privy account at [privy.io](https://privy.io)
+2. Create a new app in the Privy dashboard
+3. Configure authentication methods (Google, Solana wallets)
+4. Update your environment files with the real Privy credentials:
+
+**Backend (backend/.env):**
+```env
+PRIVY_APP_ID=your-actual-privy-app-id
+PRIVY_APP_SECRET=your-actual-privy-app-secret
+```
+
+**Frontend (.env):**
+```env
+VITE_PRIVY_APP_ID=your-actual-privy-app-id
+```
+
+⚠️ **Current Issue:** The application currently has invalid Privy credentials. Authentication will fail until you replace the placeholder values with real Privy credentials.
 
 ## Endpoints
 

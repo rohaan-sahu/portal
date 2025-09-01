@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../PrivyAuth';
 import { fetchGlobalLeaderboard, fetchGameLeaderboard } from '../api';
 
-export default function Leaderboard() {
+export default function Leaderboard({ onOpenModal }) {
   const { authenticated, user, accessToken } = useAuth();
-  const [globalLeaderboard, setGlobalLeaderboard] = useState([]);
+  const [globalLeaderboard, setGlobalLeaderboard] = useState(null);
   const [gameLeaderboards, setGameLeaderboards] = useState({});
   const [loading, setLoading] = useState({ global: true, games: {} });
   const [expandedSection, setExpandedSection] = useState(null);
@@ -90,8 +90,8 @@ export default function Leaderboard() {
   const { days, hours, minutes } = getTimeRemaining();
 
   const getUserRank = () => {
-    if (!authenticated || !user) return null;
-    
+    if (!authenticated || !user || !globalLeaderboard || !Array.isArray(globalLeaderboard)) return null;
+
     // Find user's rank in the global leaderboard
     const userEntry = globalLeaderboard.find(entry => entry.userId === user.id);
     return userEntry ? userEntry.rank : null;
@@ -174,7 +174,7 @@ export default function Leaderboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {globalLeaderboard.map((player, index) => (
+                  {globalLeaderboard && Array.isArray(globalLeaderboard) && globalLeaderboard.map((player, index) => (
                     <tr 
                       key={player.userId} 
                       className={`border-b border-[#8338ec]/10 hover:bg-[#1a1a1a] ${
@@ -307,8 +307,8 @@ export default function Leaderboard() {
           <div className="mt-8 p-6 bg-[#111111] rounded-xl border border-[#8338ec]/30 text-center">
             <h3 className="text-xl font-orbitron font-bold mb-2">Join the Competition</h3>
             <p className="text-gray-400 mb-4">Sign in to track your progress and climb the leaderboard!</p>
-            <button 
-              onClick={() => document.getElementById('signin-modal')?.showModal?.() || console.log('Open sign in modal')}
+            <button
+              onClick={onOpenModal}
               className="bg-gradient-to-r from-[#ff006e] to-[#8338ec] hover:from-[#d6005a] hover:to-[#722ed1] text-white font-bold py-2 px-6 rounded-lg transition-all"
             >
               Sign In

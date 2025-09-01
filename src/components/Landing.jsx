@@ -31,17 +31,17 @@ export default function Landing() {
       id: 'tacRush',
       name: 'Tac-Rush',
       url: 'https://tictactoe.playrush.io',
-      model: 'assets/tic-tac-toe.glb',
+      model: '/assets/tic-tac-toe.glb',
       status: 'Live',
-      image: 'assets/tictactoe.png',
+      image: '/assets/tictactoe.png',
     },
     {
       id: 'cyberrush',
       name: 'CyberRush',
       url: 'https://cyberrush.playrush.io',
-      model: 'assets/character.glb',
+      model: '/assets/character.glb',
       status: 'Live',
-      image: 'assets/cyberrush.png',
+      image: '/assets/cyberrush.png',
     },
   ];
 
@@ -137,7 +137,7 @@ export default function Landing() {
               <ambientLight intensity={0.5} />
               <pointLight position={[10, 10, 10]} intensity={1} />
               <pointLight position={[0, 0, 2]} intensity={1} color="#00CCFF" />
-              <Model url="assets/low_poly_gamepad.glb" scrollY={scrollY} />
+              <Model url="/assets/character.glb" scrollY={scrollY} />
               <OrbitControls enableZoom={false} enablePan={false} />
             </Canvas>
           </Suspense>

@@ -1,30 +1,32 @@
 // Utility functions for API calls to the Playrush backend
 
-import { auth } from './firebase';
+import { useAuth } from './PrivyAuth';
 import { loadGameData } from './firebase';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Get user profile
-async function fetchUserProfile(userId) {
+async function fetchUserProfile(userId, accessToken) {
   try {
-    const token = await auth.currentUser.getIdToken();
-    
+    if (!accessToken) {
+      throw new Error('No access token available');
+    }
+
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       }
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Failed to fetch profile');
     }
-    
+
     const data = await response.json();
-    return data.data;
+    return data;
   } catch (error) {
     console.error('Error fetching user profile:', error);
     throw error;
@@ -32,26 +34,28 @@ async function fetchUserProfile(userId) {
 }
 
 // Update user profile
-async function updateProfileOnBackend(userId, profileData) {
+async function updateProfileOnBackend(userId, profileData, accessToken) {
   try {
-    const token = await auth.currentUser.getIdToken();
-    
+    if (!accessToken) {
+      throw new Error('No access token available');
+    }
+
     const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(profileData)
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Failed to update profile');
     }
-    
+
     const data = await response.json();
-    return data.data;
+    return data;
   } catch (error) {
     console.error('Error updating user profile:', error);
     throw error;
@@ -59,37 +63,31 @@ async function updateProfileOnBackend(userId, profileData) {
 }
 
 // Submit game score
-async function submitScore(gameId, score) {
+async function submitScore(gameId, score, accessToken, apiKey) {
   try {
-    // Get user token
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error('User not authenticated');
+    if (!accessToken) {
+      throw new Error('No access token available');
     }
-    
-    const token = await user.getIdToken();
-    
-    // Get game data to retrieve API key
-    const gameData = await loadGameData(gameId);
-    if (!gameData) {
-      throw new Error('Game not found');
+
+    if (!apiKey) {
+      throw new Error('No API key available');
     }
-    
+
     const response = await fetch(`${API_BASE_URL}/submit-score`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-api-key': gameData.apiKey,
+        'Authorization': `Bearer ${accessToken}`,
+        'x-api-key': apiKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ gameId, score })
     });
-    
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Failed to submit score');
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {

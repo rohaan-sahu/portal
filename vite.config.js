@@ -27,6 +27,13 @@ export default defineConfig({
     global: 'globalThis',
   },
   server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3002',
+        changeOrigin: true,
+        secure: false,
+      }
+    },
     mimeTypes: {
       'js': 'application/javascript',
       'mjs': 'application/javascript',

@@ -11,9 +11,10 @@ async function submitScore(req, res) {
     const userId = req.user.userId || req.user.id;
     
     // Get user data
-    const user = await User.getUserByDid(userId);
+    let user = await User.getUserByDid(userId);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      // Create user if not found
+      user = await User.createUser(userId, { displayName: 'Anonymous Player' });
     }
     
     // Get game data
@@ -67,24 +68,22 @@ async function getUserProfile(req, res) {
     const { userId } = req.params;
     // Extract requesting user ID from Privy token payload
     const requestingUserId = req.user.userId || req.user.id;
-    
+
     // Check if user is requesting their own data
     if (userId !== requestingUserId) {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
       });
     }
-    
+
     // Get user data
-    const user = await User.getUserByDid(userId);
+    let user = await User.getUserByDid(userId);
     if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'User not found' 
-      });
+      // Create user if not found
+      user = await User.createUser(userId, { displayName: 'Anonymous Player' });
     }
-    
+
     // Return user data
     res.status(200).json({
       success: true,
@@ -100,16 +99,16 @@ async function getUserProfile(req, res) {
   } catch (error) {
     if (error.message === 'Database not initialized') {
       console.error('Database not initialized:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Database service not available' 
+      return res.status(500).json({
+        success: false,
+        error: 'Database service not available'
       });
     }
-    
+
     console.error('Error fetching user profile:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
     });
   }
 }
@@ -120,26 +119,32 @@ async function updateUserProfile(req, res) {
     // Extract requesting user ID from Privy token payload
     const requestingUserId = req.user.userId || req.user.id;
     const { displayName } = req.body;
-    
+
     // Check if user is updating their own data
     if (userId !== requestingUserId) {
-      return res.status(403).json({ 
-        success: false, 
-        error: 'Access denied' 
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied'
       });
     }
-    
+
     // Validate input
     if (!displayName || displayName.length < 3 || displayName.length > 20) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Display name must be between 3 and 20 characters' 
+      return res.status(400).json({
+        success: false,
+        error: 'Display name must be between 3 and 20 characters'
       });
     }
-    
+
+    // Check if user exists, create if not
+    let user = await User.getUserByDid(userId);
+    if (!user) {
+      user = await User.createUser(userId, { displayName });
+    }
+
     // Update user profile
     const updatedUser = await User.updateProfile(userId, { displayName });
-    
+
     // Return updated user data
     res.status(200).json({
       success: true,
@@ -155,16 +160,16 @@ async function updateUserProfile(req, res) {
   } catch (error) {
     if (error.message === 'Database not initialized') {
       console.error('Database not initialized:', error);
-      return res.status(500).json({ 
-        success: false, 
-        error: 'Database service not available' 
+      return res.status(500).json({
+        success: false,
+        error: 'Database service not available'
       });
     }
-    
+
     console.error('Error updating user profile:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error' 
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
     });
   }
 }

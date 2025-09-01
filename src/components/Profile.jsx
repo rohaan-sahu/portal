@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../PrivyAuth';
 import { fetchUserProfile, updateProfileOnBackend } from '../api';
 
-export default function Profile() {
-  const { user, loading, authenticated, accessToken } = useAuth();
+export default function Profile({ onOpenModal }) {
+  const { user, loading, authenticated, accessToken, logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState(null);
@@ -61,8 +61,8 @@ export default function Profile() {
       
       // Update user profile on backend
       const updatedProfile = await updateProfileOnBackend(
-        user.id, 
-        { displayName }, 
+        user.id,
+        { displayName },
         accessToken
       );
       
@@ -96,8 +96,8 @@ export default function Profile() {
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-orbitron font-bold mb-6">Profile</h1>
           <p className="text-gray-400 mb-8">You need to sign in to view your profile.</p>
-          <button 
-            onClick={() => document.getElementById('signin-modal').showModal?.() || console.log('Open sign in modal')}
+          <button
+            onClick={onOpenModal}
             className="bg-[#8338ec] hover:bg-[#722ed1] text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             Sign In
@@ -175,7 +175,7 @@ export default function Profile() {
               </div>
               
               <button
-                onClick={() => useAuth().logout()}
+                onClick={logout}
                 className="w-full mt-6 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors"
               >
                 Sign Out

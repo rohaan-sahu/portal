@@ -2,11 +2,9 @@
 import { useState } from 'react';
 import { useAuth } from '../PrivyAuth';
 import { Link } from 'react-router-dom';
-import SignInModal from './SignInModal';
 
-export default function Header() {
+export default function Header({ onOpenModal }) {
   const { authenticated, user, logout } = useAuth();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [walletAddress, setWalletAddress] = useState(null);
 
   const handleSignOut = async () => {
@@ -42,13 +40,12 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <button onClick={() => setIsModalOpen(true)} className="bg-gradient-to-r from-[#ff006e] to-[#8338ec] text-white px-4 py-1 rounded hover:shadow-lg transition">
+            <button onClick={onOpenModal} className="bg-gradient-to-r from-[#ff006e] to-[#8338ec] text-white px-4 py-1 rounded hover:shadow-lg transition">
               Sign In
             </button>
           )}
         </div>
       </nav>
-      <SignInModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} setWalletAddress={setWalletAddress} />
     </header>
   );
 }

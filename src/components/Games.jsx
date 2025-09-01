@@ -59,7 +59,7 @@ const gamesData = [
   }
 ];
 
-export default function Games() {
+export default function Games({ onOpenModal }) {
   const [search, setSearch] = useState('');
   const [games, setGames] = useState(gamesData);
   const [loading, setLoading] = useState({});
@@ -75,8 +75,7 @@ export default function Games() {
   const handleGameLaunch = async (game) => {
     if (!authenticated) {
       // Show sign in modal
-      document.getElementById('signin-modal')?.showModal?.() || 
-        console.log('Please sign in to play games');
+      onOpenModal();
       return;
     }
 
@@ -173,8 +172,8 @@ export default function Games() {
           <div className="mt-8 p-6 bg-[#111111] rounded-xl border border-[#8338ec]/30 text-center">
             <h3 className="text-xl font-orbitron font-bold mb-2">Ready to Play?</h3>
             <p className="text-gray-400 mb-4">Sign in to access all games and start earning rewards!</p>
-            <button 
-              onClick={() => document.getElementById('signin-modal')?.showModal?.() || console.log('Open sign in modal')}
+            <button
+              onClick={onOpenModal}
               className="bg-gradient-to-r from-[#ff006e] to-[#8338ec] hover:from-[#d6005a] hover:to-[#722ed1] text-white font-bold py-2 px-6 rounded-lg transition-all"
             >
               Sign In

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../PrivyAuth';
 import { getRecentActivity, loadGameData } from '../firebase';
 
-export default function Community() {
+export default function Community({ onOpenModal }) {
   const { user, loading: authLoading } = useAuth();
   const [activities, setActivities] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -67,7 +67,7 @@ export default function Community() {
           }
 
           // Load recent activities
-          const activityData = await getRecentActivity();
+          const activityData = await getRecentActivity(user.id);
           setActivities(activityData || []);
 
           // Fetch user-specific data from Firestore
@@ -152,8 +152,8 @@ export default function Community() {
         <div className="text-center max-w-md">
           <h1 className="text-3xl font-orbitron font-bold mb-6">Community</h1>
           <p className="text-gray-400 mb-8">Join our community to participate in events, complete tasks, and climb the social leaderboard.</p>
-          <button 
-            onClick={() => document.getElementById('signin-modal')?.showModal?.() || console.log('Open sign in modal')}
+          <button
+            onClick={onOpenModal}
             className="bg-[#8338ec] hover:bg-[#722ed1] text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             Sign In

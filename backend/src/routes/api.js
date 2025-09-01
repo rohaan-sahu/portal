@@ -48,6 +48,25 @@ router.get('/community/recent-activity', async (req, res) => {
   }
 });
 
+// Test endpoint to verify Privy client and token verification
+router.get('/test-privy', async (req, res) => {
+  const { privy } = require('../config/privy');
+  if (!privy) {
+    return res.status(500).json({ error: 'Privy client not initialized' });
+  }
+  try {
+    // For testing, expect token in query param ?token=...
+    const token = req.query.token;
+    if (!token) {
+      return res.status(400).json({ error: 'Missing token query parameter' });
+    }
+    const payload = await privy.verifyAuthToken(token);
+    res.json({ message: 'Token verified successfully', payload });
+  } catch (error) {
+    res.status(400).json({ error: 'Token verification failed', details: error.message });
+  }
+});
+
 // Protected routes (require authentication)
 router.get('/users/:userId', verifyPrivyToken, getUserProfile);
 router.put('/users/:userId', verifyPrivyToken, updateUserProfile);
