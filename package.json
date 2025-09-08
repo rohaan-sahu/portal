@@ -12,16 +12,19 @@
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:backend\""
   },
   "dependencies": {
+    "@coinbase/wallet-sdk": "^4.0.3",
     "@privy-io/react-auth": "^1.99.1",
     "@react-three/drei": "^9.118.1",
     "@react-three/fiber": "^8.17.10",
+    "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "firebase": "^11.10.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.0.1",
-    "three": "^0.171.0"
+    "three": "^0.171.0",
+    "util": "^0.12.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -37,7 +40,8 @@
     "globals": "^15.14.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-plugin-node-polyfills": "^0.24.0"
   },
   "engines": {
     "node": "20.x"

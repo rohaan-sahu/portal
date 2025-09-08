@@ -88,23 +88,63 @@ export const PrivyAuthProvider = ({ children }) => {
     );
   }
 
+  const privyConfig = {
+    appearance: {
+      theme: 'dark',
+      accentColor: '#676FFF',
+      logo: '/assets/playrush-logo.png',
+    },
+    embeddedWallets: {
+      createOnLogin: 'users-without-wallets',
+    },
+    loginMethods: ['wallet', 'google'],
+    supportedChains: ['solana'],
+    defaultChain: 'solana',
+    privyWalletOverride: {
+      solanaClusters: [
+        {
+          name: 'mainnet-beta',
+          rpcUrl: 'https://api.mainnet-beta.solana.com',
+        },
+      ],
+    },
+    walletConnectors: [
+      {
+        name: 'Phantom',
+        connector: 'phantom',
+      },
+      {
+        name: 'Solflare',
+        connector: 'solflare',
+      },
+      {
+        name: 'Coinbase Wallet',
+        connector: 'coinbase_wallet',
+      },
+    ],
+  };
+
+  // Defensive check for privyWalletOverride
+  if (!privyConfig.privyWalletOverride) {
+    console.warn('privyWalletOverride is undefined, using default configuration');
+    privyConfig.privyWalletOverride = {
+      solanaClusters: [
+        {
+          name: 'mainnet-beta',
+          rpcUrl: 'https://api.mainnet-beta.solana.com',
+        },
+      ],
+    };
+  }
+
   return (
-    <PrivyProvider 
+    <PrivyProvider
       appId={privyAppId}
-      config={{
-        appearance: {
-          theme: 'dark',
-          accentColor: '#676FFF',
-          logo: '/assets/playrush-logo.png',
-        },
-        embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
-        },
-      }}
+      config={privyConfig}
     >
       <AuthProvider>
         {children}
       </AuthProvider>
     </PrivyProvider>
   );
-};
+}

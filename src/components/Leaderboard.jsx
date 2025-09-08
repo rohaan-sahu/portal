@@ -31,33 +31,42 @@ export default function Leaderboard({ onOpenModal }) {
   ];
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData(retryCount = 0) {
       try {
         setError(null);
-        
+
         // Fetch global leaderboard
         setLoading(prev => ({ ...prev, global: true }));
         const globalData = await fetchGlobalLeaderboard();
-        setGlobalLeaderboard(globalData.data);
+        setGlobalLeaderboard(globalData);
         setLoading(prev => ({ ...prev, global: false }));
-        
+
         // Fetch game leaderboards
         const gameLeaderboardsData = {};
         for (const game of games) {
           try {
             setLoading(prev => ({ ...prev, games: { ...prev.games, [game.id]: true } }));
             const gameData = await fetchGameLeaderboard(game.id);
-            gameLeaderboardsData[game.id] = gameData.data;
+            gameLeaderboardsData[game.id] = gameData;
             setLoading(prev => ({ ...prev, games: { ...prev.games, [game.id]: false } }));
           } catch (err) {
             console.error(`Failed to load leaderboard for ${game.id}:`, err);
             setLoading(prev => ({ ...prev, games: { ...prev.games, [game.id]: false } }));
+            // Don't fail the entire operation if one game fails
           }
         }
         setGameLeaderboards(gameLeaderboardsData);
       } catch (err) {
         console.error('Failed to load leaderboard data:', err);
-        setError('Failed to load leaderboard data: ' + (err.message || 'Unknown error'));
+
+        // Retry logic for network errors
+        if (retryCount < 3 && (err.message?.includes('fetch') || err.message?.includes('network'))) {
+          console.log(`Retrying leaderboard fetch (attempt ${retryCount + 1})...`);
+          setTimeout(() => fetchData(retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+
+        setError('Failed to load leaderboard data. Please check your connection and try again.');
         setLoading({ global: false, games: {} });
       }
     }

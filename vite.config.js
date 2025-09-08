@@ -21,10 +21,21 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      buffer: 'buffer',
+      util: 'util'
     },
   },
   define: {
     global: 'globalThis',
+    'process.env': {},
+    process: {
+      env: {},
+      version: '',
+      browser: true
+    }
+  },
+  optimizeDeps: {
+    include: ['buffer', 'util', '@coinbase/wallet-sdk']
   },
   server: {
     proxy: {
