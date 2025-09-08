@@ -1,6 +1,17 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { usePrivy, PrivyProvider } from '@privy-io/react-auth';
 
+// Loading component for Privy initialization
+const PrivyLoading = () => (
+  <div className="min-h-screen bg-black flex items-center justify-center">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-neon-blue mx-auto mb-4"></div>
+      <p className="text-white text-xl font-orbitron">Initializing Wallet...</p>
+      <p className="text-gray-400 text-sm mt-2">Connecting to Solana network</p>
+    </div>
+  </div>
+);
+
 // Create context for authentication state
 const AuthContext = createContext();
 
@@ -59,6 +70,11 @@ export const AuthProvider = ({ children }) => {
     logout
   };
 
+  // Show loading while Privy is initializing
+  if (authState.loading) {
+    return <PrivyLoading />;
+  }
+
   return (
     <AuthContext.Provider value={value}>
       {children}
@@ -100,14 +116,6 @@ export const PrivyAuthProvider = ({ children }) => {
     loginMethods: ['wallet', 'google'],
     supportedChains: ['solana'],
     defaultChain: 'solana',
-    privyWalletOverride: {
-      solanaClusters: [
-        {
-          name: 'mainnet-beta',
-          rpcUrl: 'https://api.mainnet-beta.solana.com',
-        },
-      ],
-    },
     walletConnectors: [
       {
         name: 'Phantom',
@@ -122,11 +130,12 @@ export const PrivyAuthProvider = ({ children }) => {
         connector: 'coinbase_wallet',
       },
     ],
+    // Initialize with empty object to prevent undefined access
+    privyWalletOverride: {},
   };
 
-  // Defensive check for privyWalletOverride
-  if (!privyConfig.privyWalletOverride) {
-    console.warn('privyWalletOverride is undefined, using default configuration');
+  // Populate privyWalletOverride after initialization
+  if (Object.keys(privyConfig.privyWalletOverride).length === 0) {
     privyConfig.privyWalletOverride = {
       solanaClusters: [
         {
