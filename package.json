@@ -12,8 +12,8 @@
     "dev:both": "concurrently \"npm run dev\" \"npm run dev:backend\""
   },
   "dependencies": {
-    "@coinbase/wallet-sdk": "^4.0.3",
-    "@privy-io/react-auth": "^2.2.1",
+    "@coinbase/wallet-sdk": "^4.3.7",
+    "@privy-io/react-auth": "^2.24.0",
     "@react-three/drei": "^9.118.1",
     "@react-three/fiber": "^8.17.10",
     "buffer": "^6.0.3",
@@ -24,7 +24,8 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.0.1",
     "three": "^0.171.0",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "viem": "^2.37.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
