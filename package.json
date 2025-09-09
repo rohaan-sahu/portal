@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^4.0.3",
-    "@privy-io/react-auth": "^1.99.1",
+    "@privy-io/react-auth": "^2.2.1",
     "@react-three/drei": "^9.118.1",
     "@react-three/fiber": "^8.17.10",
     "buffer": "^6.0.3",

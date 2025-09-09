@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { usePrivy, PrivyProvider } from '@privy-io/react-auth';
 
-// Loading component for Privy initialization
+// Loading screen during wallet initialization
 const PrivyLoading = () => (
   <div className="min-h-screen bg-black flex items-center justify-center">
     <div className="text-center">
@@ -12,85 +12,76 @@ const PrivyLoading = () => (
   </div>
 );
 
-// Create context for authentication state
-const AuthContext = createContext();
+const AuthContext = createContext(undefined);
 
-// Custom hook to use the authentication context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 };
 
-// AuthProvider component to wrap the app
 export const AuthProvider = ({ children }) => {
   const { ready, authenticated, user, logout, getAccessToken } = usePrivy();
   const [authState, setAuthState] = useState({
     user: null,
     loading: true,
     authenticated: false,
-    accessToken: null
+    accessToken: null,
   });
 
   useEffect(() => {
-    if (ready) {
-      if (authenticated && user) {
-        // Get access token for API calls
-        getAccessToken().then(token => {
-          setAuthState({
-            user: user,
-            loading: false,
-            authenticated: true,
-            accessToken: token
-          });
-        }).catch(error => {
-          console.error('Error getting access token:', error);
-          setAuthState({
-            user: user,
-            loading: false,
-            authenticated: true,
-            accessToken: null
-          });
-        });
-      } else {
-        setAuthState({
-          user: null,
-          loading: false,
-          authenticated: false,
-          accessToken: null
-        });
-      }
+    if (!ready) return;
+
+    const setLoggedOut = () =>
+      setAuthState({
+        user: null,
+        loading: false,
+        authenticated: false,
+        accessToken: null,
+      });
+
+    if (!authenticated || !user) {
+      setLoggedOut();
+      return;
     }
+
+    getAccessToken()
+      .then((token) => {
+        setAuthState({
+          user,
+          loading: false,
+          authenticated: true,
+          accessToken: token ?? null,
+        });
+      })
+      .catch((err) => {
+        console.error('Error getting access token:', err);
+        setAuthState({
+          user,
+          loading: false,
+          authenticated: true,
+          accessToken: null,
+        });
+      });
   }, [ready, authenticated, user, getAccessToken]);
 
-  const value = {
-    ...authState,
-    logout
-  };
-
-  // Show loading while Privy is initializing
-  if (authState.loading) {
-    return <PrivyLoading />;
-  }
+  if (authState.loading) return <PrivyLoading />;
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ ...authState, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Wrapper component that includes the PrivyProvider
 export const PrivyAuthProvider = ({ children }) => {
   const privyAppId = import.meta.env.VITE_PRIVY_APP_ID;
-  
-  // Validate Privy app ID
-  if (!privyAppId || privyAppId.length < 10) {
+
+  // Fail-fast if APP ID is not valid
+  if (!privyAppId || typeof privyAppId !== 'string' || privyAppId.trim().length < 10) {
     console.error('Invalid Privy App ID. Please check your .env file.');
     return (
-      <div className="min-h-screen bg-[#0A0A0A] text-white flex items-center justify-center p-4">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
         <div className="text-center max-w-md">
           <h1 className="text-2xl font-bold text-red-500 mb-4">Configuration Error</h1>
           <p className="text-gray-300 mb-4">
@@ -104,7 +95,8 @@ export const PrivyAuthProvider = ({ children }) => {
     );
   }
 
-  const privyConfig = {
+  // Base config (Solana + embedded wallet + Google)
+  const baseConfig = {
     appearance: {
       theme: 'dark',
       accentColor: '#676FFF',
@@ -114,46 +106,58 @@ export const PrivyAuthProvider = ({ children }) => {
       createOnLogin: 'users-without-wallets',
     },
     loginMethods: ['wallet', 'google'],
-    supportedChains: ['solana'],
-    defaultChain: 'solana',
-    walletConnectors: [
+    supportedChains: [
       {
-        name: 'Phantom',
-        connector: 'phantom',
-      },
-      {
-        name: 'Solflare',
-        connector: 'solflare',
-      },
-      {
-        name: 'Coinbase Wallet',
-        connector: 'coinbase_wallet',
+        name: 'Solana',
+        id: 'solana',
       },
     ],
-    // Initialize with empty object to prevent undefined access
-    privyWalletOverride: {},
+    defaultChain: {
+      name: 'Solana',
+      id: 'solana',
+    },
+    // External Solana wallets
+    externalWallets: {
+      enabled: true,
+      connectors: [
+        { name: 'Phantom', connector: 'phantom' },
+        { name: 'Solflare', connector: 'solflare' },
+        { name: 'Coinbase Wallet', connector: 'coinbase_wallet' },
+      ],
+    },
   };
 
-  // Populate privyWalletOverride after initialization
-  if (Object.keys(privyConfig.privyWalletOverride).length === 0) {
-    privyConfig.privyWalletOverride = {
-      solanaClusters: [
-        {
-          name: 'mainnet-beta',
-          rpcUrl: 'https://api.mainnet-beta.solana.com',
-        },
-      ],
+  // Defensive normalization to guarantee the SDK never sees undefined
+  const normalizeConnectors = (cfg) => {
+    const ext = cfg?.externalWallets ?? {};
+    const raw = Array.isArray(ext.connectors) ? ext.connectors : [];
+    const connectors = raw
+      .filter(Boolean)
+      .map((c) => ({
+        name: String(c?.name ?? ''),
+        connector: String(c?.connector ?? ''),
+      }))
+      // keep only valid entries
+      .filter((c) => c.name && c.connector);
+
+    return {
+      ...cfg,
+      externalWallets: {
+        enabled: Boolean(ext.enabled),
+        connectors, // always an array, never undefined
+      },
     };
-  }
+  };
+
+  const privyConfig = normalizeConnectors(baseConfig);
+
+  // Visibility for runtime verification
+  console.log('Privy App ID:', privyAppId);
+  console.log('Privy Config:', privyConfig);
 
   return (
-    <PrivyProvider
-      appId={privyAppId}
-      config={privyConfig}
-    >
-      <AuthProvider>
-        {children}
-      </AuthProvider>
+    <PrivyProvider appId={privyAppId} config={privyConfig}>
+      <AuthProvider>{children}</AuthProvider>
     </PrivyProvider>
   );
-}
+};
