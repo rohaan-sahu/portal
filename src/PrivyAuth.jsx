@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { usePrivy, PrivyProvider } from '@privy-io/react-auth';
 
 // Loading screen during wallet initialization
@@ -96,7 +96,7 @@ export const PrivyAuthProvider = ({ children }) => {
   }
 
   // Base config (Solana + embedded wallet + Google)
-  const baseConfig = {
+  const baseConfig = useMemo(() => ({
     appearance: {
       theme: 'dark',
       accentColor: '#676FFF',
@@ -104,6 +104,7 @@ export const PrivyAuthProvider = ({ children }) => {
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
+      privyWalletOverride: false,
     },
     loginMethods: ['wallet', 'google'],
     supportedChains: [
@@ -120,15 +121,15 @@ export const PrivyAuthProvider = ({ children }) => {
     externalWallets: {
       enabled: true,
       connectors: [
-        { name: 'Phantom', connector: 'phantom' },
-        { name: 'Solflare', connector: 'solflare' },
-        { name: 'Coinbase Wallet', connector: 'coinbase_wallet' },
+        { name: 'Phantom', connector: 'phantom', privyWalletOverride: false },
+        { name: 'Solflare', connector: 'solflare', privyWalletOverride: false },
+        { name: 'Coinbase Wallet', connector: 'coinbase_wallet', privyWalletOverride: false },
       ],
     },
-  };
+  }), []);
 
   // Defensive normalization to guarantee the SDK never sees undefined
-  const normalizeConnectors = (cfg) => {
+  const normalizeConnectors = useMemo(() => (cfg) => {
     const ext = cfg?.externalWallets ?? {};
     const raw = Array.isArray(ext.connectors) ? ext.connectors : [];
     const connectors = raw
@@ -136,6 +137,7 @@ export const PrivyAuthProvider = ({ children }) => {
       .map((c) => ({
         name: String(c?.name ?? ''),
         connector: String(c?.connector ?? ''),
+        privyWalletOverride: Boolean(c?.privyWalletOverride),
       }))
       // keep only valid entries
       .filter((c) => c.name && c.connector);
@@ -147,9 +149,9 @@ export const PrivyAuthProvider = ({ children }) => {
         connectors, // always an array, never undefined
       },
     };
-  };
+  }, []);
 
-  const privyConfig = normalizeConnectors(baseConfig);
+  const privyConfig = useMemo(() => normalizeConnectors(baseConfig), [baseConfig, normalizeConnectors]);
 
   // Visibility for runtime verification
   console.log('Privy App ID:', privyAppId);
