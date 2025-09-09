@@ -55,13 +55,11 @@ const LoadingSpinner = () => (
 );
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-      <Suspense fallback={<LoadingSpinner />}>
-        <PrivyAuthProvider>
-          <App />
-        </PrivyAuthProvider>
-      </Suspense>
-    </ErrorBoundary>
-  </React.StrictMode>
+  <ErrorBoundary>
+    <Suspense fallback={<LoadingSpinner />}>
+      <PrivyAuthProvider>
+        <App />
+      </PrivyAuthProvider>
+    </Suspense>
+  </ErrorBoundary>
 );

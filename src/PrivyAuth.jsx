@@ -106,32 +106,23 @@ export const PrivyAuthProvider = ({ children }) => {
       createOnLogin: 'users-without-wallets',
     },
     loginMethods: ['wallet', 'google'],
-    supportedChains: [
-      {
-        id: 'solana',
-        name: 'Solana',
-        nativeToken: {
-          name: 'Solana',
-          symbol: 'SOL',
-          decimals: 9,
-        },
-        rpcUrls: ['https://api.mainnet-beta.solana.com'],
-      },
-    ],
+    supportedChains: [{
+      id: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+      name: 'Solana Mainnet',
+      nativeToken: { name: 'Solana', symbol: 'SOL', decimals: 9 },
+      rpcUrls: ['https://api.mainnet-beta.solana.com'],
+    }],
     defaultChain: {
-      id: 'solana',
-      name: 'Solana',
-      nativeToken: {
-        name: 'Solana',
-        symbol: 'SOL',
-        decimals: 9,
-      },
+      id: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+      name: 'Solana Mainnet',
+      nativeToken: { name: 'Solana', symbol: 'SOL', decimals: 9 },
       rpcUrls: ['https://api.mainnet-beta.solana.com'],
     },
     externalWallets: {
       solana: {
         supportedWallets: ['phantom', 'solflare'],
       },
+      coinbaseWallet: false,
     },
   }), []);
 

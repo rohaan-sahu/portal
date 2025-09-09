@@ -1,8 +1,7 @@
-// src/App.jsx (Updated with Header and responsive nav)
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
-import Header from './components/Header'; // New component
+import { useState, useEffect } from 'react';
+import Header from './components/Header';
 import Games from './components/Games';
 import Community from './components/Community';
 import Profile from './components/Profile';
@@ -37,11 +36,50 @@ const BottomNav = () => {
 export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    console.log('Playrush Portal initialized');
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+    // Mobile menu toggle
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const navMenu = document.querySelector('.nav-menu');
+    if (mobileMenuToggle && navMenu) {
+      mobileMenuToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('nav-open');
+      });
+    }
+    // Hide loader on load
+    window.addEventListener('load', () => {
+      const loader = document.querySelector('.loader');
+      if (loader) {
+        loader.style.display = 'none';
+      }
+    });
+    // Cleanup event listeners
+    return () => {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.removeEventListener('click', () => {});
+      });
+      if (mobileMenuToggle) {
+        mobileMenuToggle.removeEventListener('click', () => {});
+      }
+      window.removeEventListener('load', () => {});
+    };
+  }, []);
+
   return (
     <Router>
       <div className="bg-[#0A0A0A] text-white min-h-screen relative font-orbitron">
-        <Header onOpenModal={() => setIsModalOpen(true)} /> {/* Pass open modal function */}
-        <div className="pb-16 sm:pb-0 pt-16"> {/* Padding for header */}
+        <Header onOpenModal={() => setIsModalOpen(true)} />
+        <div className="pb-16 sm:pb-0 pt-16">
           <Routes>
             <Route path="/" element={<Games onOpenModal={() => setIsModalOpen(true)} />} />
             <Route path="/games" element={<Games onOpenModal={() => setIsModalOpen(true)} />} />

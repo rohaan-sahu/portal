@@ -13,24 +13,24 @@
   },
   "dependencies": {
     "@coinbase/wallet-sdk": "^4.3.7",
-    "@privy-io/react-auth": "^2.24.0",
-    "@react-three/drei": "^9.118.1",
+    "@privy-io/react-auth": "^2.3.0",
+    "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.17.10",
     "buffer": "^6.0.3",
     "cors": "^2.8.5",
     "express": "^4.21.1",
-    "firebase": "^11.10.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.0.1",
+    "firebase": "^11.0.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
     "three": "^0.171.0",
     "util": "^0.12.5",
-    "viem": "^2.37.5"
+    "viem": "^2.21.35"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.1.0",
@@ -46,6 +46,5 @@
   },
   "engines": {
     "node": "20.x"
-  },
-  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c"
+  }
 }

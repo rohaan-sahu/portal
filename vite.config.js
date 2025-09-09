@@ -53,6 +53,17 @@ export default defineConfig({
     exclude: [],
   },
   server: {
+    headers: {
+      'Content-Security-Policy': `
+        default-src 'self';
+        script-src 'self' 'unsafe-inline' https://auth.privy.io https://www.googletagmanager.com;
+        frame-src 'self' https://auth.privy.io https://wallet.privy.io;
+        connect-src 'self' https://auth.privy.io https://api.mainnet-beta.solana.com https://explorer-api.walletconnect.com wss://relay.walletconnect.com;
+        img-src 'self' data: https://*.privy.io;
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+        font-src 'self' https://fonts.gstatic.com;
+      `.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim(),
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:3002',
