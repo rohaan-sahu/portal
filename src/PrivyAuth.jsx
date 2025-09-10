@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
+import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
 
 // Loading screen during wallet initialization
 const PrivyLoading = () => (
@@ -95,12 +96,18 @@ export const PrivyAuthProvider = ({ children }) => {
     );
   }
 
+  // Solana connectors (Phantom and Solflare)
+  const solanaConnectors = toSolanaWalletConnectors({
+    shouldAutoConnect: true,
+  });
+
   // Base config (Solana + embedded wallet + Google)
   const privyConfig = useMemo(() => ({
     appearance: {
       theme: 'dark',
       accentColor: '#676FFF',
       logo: '/assets/playrush-logo.png',
+      walletChainType: 'solana-only', // Required for Solana support
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
@@ -120,11 +127,10 @@ export const PrivyAuthProvider = ({ children }) => {
     },
     externalWallets: {
       solana: {
-        supportedWallets: ['phantom', 'solflare'],
+        connectors: solanaConnectors, // Official Solana connectors
       },
-      coinbaseWallet: false,
     },
-  }), []);
+  }), [solanaConnectors]);
 
   // Visibility for runtime verification
   console.log('Privy App ID:', privyAppId);
