@@ -3,23 +3,42 @@ const Game = require('../models/Game');
 
 // Middleware to verify Privy token
 async function verifyPrivyToken(req, res, next) {
-  // TEMPORARY BYPASS: Skip Privy authentication for now
-  console.log('BYPASSING Privy authentication for request:', {
-    method: req.method,
-    url: req.url
-  });
+  try {
+    const { privy } = require('../config/privy');
 
-  // Create a mock user object for testing, using the userId from params if available
-  const userId = req.params.userId || 'test-user-id';
-  req.user = {
-    userId: userId,
-    id: userId,
-    issuer: 'test-issuer',
-    issuedAt: new Date().toISOString(),
-    expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
-  };
+    if (!privy) {
+      console.error('Privy client not initialized');
+      return res.status(500).json({ error: 'Authentication service not available' });
+    }
 
-  next();
+    // Get token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+
+    // Verify the token with Privy
+    const payload = await privy.verifyAuthToken(token);
+
+    if (!payload) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+
+    // Attach user info to request
+    req.user = {
+      userId: payload.userId || payload.sub,
+      id: payload.userId || payload.sub,
+      ...payload
+    };
+
+    console.log('Privy token verified for user:', req.user.userId);
+    next();
+  } catch (error) {
+    console.error('Privy token verification failed:', error);
+    return res.status(401).json({ error: 'Authentication failed' });
+  }
 }
 
 // Middleware to verify game API key
