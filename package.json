@@ -16,6 +16,8 @@
     "@privy-io/react-auth": "2.22.0",
     "@react-three/drei": "9.122.0",
     "@react-three/fiber": "8.17.10",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.4",
     "buffer": "6.0.3",
     "cors": "2.8.5",
     "express": "4.21.1",

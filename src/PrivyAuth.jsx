@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { PrivyProvider, usePrivy } from '@privy-io/react-auth';
-import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
 
 // Loading screen during wallet initialization
 const PrivyLoading = () => (
@@ -96,10 +95,6 @@ export const PrivyAuthProvider = ({ children }) => {
     );
   }
 
-  // Solana connectors (Phantom and Solflare)
-  const solanaConnectors = toSolanaWalletConnectors({
-    shouldAutoConnect: true,
-  });
 
   // Base config (Solana + embedded wallet + Google)
   const privyConfig = useMemo(() => ({
@@ -107,7 +102,6 @@ export const PrivyAuthProvider = ({ children }) => {
       theme: 'dark',
       accentColor: '#676FFF',
       logo: '/assets/playrush-logo.png',
-      walletChainType: 'solana-only', // Required for Solana support
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
@@ -116,21 +110,20 @@ export const PrivyAuthProvider = ({ children }) => {
     supportedChains: [{
       id: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
       name: 'Solana Mainnet',
-      nativeToken: { name: 'Solana', symbol: 'SOL', decimals: 9 },
       rpcUrls: ['https://api.mainnet-beta.solana.com'],
     }],
     defaultChain: {
       id: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
       name: 'Solana Mainnet',
-      nativeToken: { name: 'Solana', symbol: 'SOL', decimals: 9 },
       rpcUrls: ['https://api.mainnet-beta.solana.com'],
     },
     externalWallets: {
-      solana: {
-        connectors: solanaConnectors, // Official Solana connectors
-      },
+      solanaClusters: [{
+        name: 'mainnet-beta',
+        rpcUrl: 'https://api.mainnet-beta.solana.com',
+      }],
     },
-  }), [solanaConnectors]);
+  }), []);
 
   // Visibility for runtime verification
   console.log('Privy App ID:', privyAppId);
