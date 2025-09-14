@@ -66,6 +66,14 @@ export default function Leaderboard({ onOpenModal }) {
           return;
         }
 
+        // Fix: Do not set error if the error is due to 403 or 401 unauthorized (likely token expired)
+        if (err.message?.includes('403') || err.message?.includes('401')) {
+          console.warn('Unauthorized access to leaderboard, skipping error display.');
+          setError(null);
+          setLoading({ global: false, games: {} });
+          return;
+        }
+
         setError('Failed to load leaderboard data. Please check your connection and try again.');
         setLoading({ global: false, games: {} });
       }
