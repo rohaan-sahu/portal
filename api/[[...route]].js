@@ -1,7 +1,7 @@
-import express from 'express';
-import cors from 'cors';
-import { verifyPrivyToken, verifyApiKey, validateScore } from '../backend/src/middleware/auth';
-import { submitScore, getUserProfile, updateUserProfile, getGlobalLeaderboard, getGameLeaderboard } from '../backend/src/controllers/scoreController';
+const express = require('express');
+const cors = require('cors');
+const { verifyPrivyToken, verifyApiKey, validateScore } = require('../backend/src/middleware/auth');
+const { submitScore, getUserProfile, updateUserProfile, getGlobalLeaderboard, getGameLeaderboard } = require('../backend/src/controllers/scoreController');
 
 // Create an Express app
 const app = express();

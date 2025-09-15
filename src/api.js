@@ -21,8 +21,15 @@ async function fetchUserProfile(userId, accessToken) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch profile');
+      let errorMessage = 'Failed to fetch profile';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        // If response.json() fails, use status text
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -50,8 +57,14 @@ async function updateProfileOnBackend(userId, profileData, accessToken) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to update profile');
+      let errorMessage = 'Failed to update profile';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
@@ -100,12 +113,18 @@ async function submitScore(gameId, score, accessToken, apiKey) {
 async function fetchGlobalLeaderboard() {
   try {
     const response = await fetch(`${API_BASE_URL}/leaderboard/global`);
-    
+
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to fetch leaderboard');
+      let errorMessage = 'Failed to fetch leaderboard';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (e) {
+        errorMessage = response.statusText || errorMessage;
+      }
+      throw new Error(errorMessage);
     }
-    
+
     const data = await response.json();
     return data.data;
   } catch (error) {

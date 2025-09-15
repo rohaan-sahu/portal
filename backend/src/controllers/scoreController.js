@@ -84,6 +84,13 @@ async function getUserProfile(req, res) {
       user = await User.createUser(userId, { displayName: 'Anonymous Player' });
     }
 
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
     // Return user data
     res.status(200).json({
       success: true,
@@ -178,6 +185,13 @@ async function getGlobalLeaderboard(req, res) {
   try {
     // Get global leaderboard
     const leaderboard = await User.getGlobalLeaderboard(100);
+
+    if (!leaderboard) {
+      return res.status(500).json({
+        success: false,
+        error: 'No leaderboard data available',
+      });
+    }
     
     // Return leaderboard data
     res.status(200).json({

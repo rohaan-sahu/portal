@@ -103,20 +103,14 @@ export const PrivyAuthProvider = ({ children }) => {
       accentColor: '#676FFF',
       logo: '/assets/playrush-logo.png',
     },
-    // Disable embedded wallets since they don't support Solana
-    // embeddedWallets: {
-    //   createOnLogin: 'users-without-wallets',
-    //   requireUserPasswordOnCreate: false,
-    // },
+    // Disable embedded wallets
+    embeddedWallets: {
+      createOnLogin: 'off',
+    },
     loginMethods: ['wallet', 'google'],
-    // Configure Solana wallets - let Privy handle default connectors
+    // Configure external wallets
     externalWallets: {
-      solanaClusters: [
-        {
-          name: 'mainnet-beta',
-          rpcUrl: 'https://api.mainnet-beta.solana.com',
-        }
-      ],
+      solana: {},
     },
     walletConnect: {
       // Disable Coinbase Smart Wallet for Solana compatibility
