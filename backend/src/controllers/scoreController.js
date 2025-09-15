@@ -66,11 +66,11 @@ async function submitScore(req, res) {
 async function getUserProfile(req, res) {
   try {
     const { userId } = req.params;
-    // Extract requesting user ID from Privy token payload
-    const requestingUserId = req.user.userId || req.user.id;
+    // Extract requesting user ID from Privy token payload (if authenticated)
+    const requestingUserId = req.user ? (req.user.userId || req.user.id) : userId;
 
-    // Check if user is requesting their own data
-    if (userId !== requestingUserId) {
+    // Check if user is requesting their own data (skip if not authenticated)
+    if (req.user && userId !== requestingUserId) {
       return res.status(403).json({
         success: false,
         error: 'Access denied'
@@ -123,12 +123,12 @@ async function getUserProfile(req, res) {
 async function updateUserProfile(req, res) {
   try {
     const { userId } = req.params;
-    // Extract requesting user ID from Privy token payload
-    const requestingUserId = req.user.userId || req.user.id;
+    // Extract requesting user ID from Privy token payload (if authenticated)
+    const requestingUserId = req.user ? (req.user.userId || req.user.id) : userId;
     const { displayName } = req.body;
 
-    // Check if user is updating their own data
-    if (userId !== requestingUserId) {
+    // Check if user is updating their own data (skip if not authenticated)
+    if (req.user && userId !== requestingUserId) {
       return res.status(403).json({
         success: false,
         error: 'Access denied'

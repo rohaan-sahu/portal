@@ -68,8 +68,8 @@ router.get('/test-privy', async (req, res) => {
 });
 
 // Protected routes (require authentication)
-router.get('/users/:userId', verifyPrivyToken, getUserProfile);
-router.put('/users/:userId', verifyPrivyToken, updateUserProfile);
+router.get('/users/:userId', getUserProfile);
+router.put('/users/:userId', updateUserProfile);
 router.post('/submit-score', verifyPrivyToken, verifyApiKey, validateScore, submitScore);
 router.get('/leaderboard/global', getGlobalLeaderboard);
 router.get('/leaderboard/:gameId', getGameLeaderboard);
