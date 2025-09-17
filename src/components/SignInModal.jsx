@@ -19,7 +19,7 @@ export default function SignInModal({ isOpen, onClose, setWalletAddress }) {
     setLoading('google');
     setError(null);
     try {
-      await login();
+      await login({ loginMethod: 'google' });
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to sign in with Google.');
@@ -31,7 +31,7 @@ export default function SignInModal({ isOpen, onClose, setWalletAddress }) {
     setLoading('solana');
     setError(null);
     try {
-      await login();
+      await login({ loginMethod: 'wallet' });
       // Wallet address will be available through the Privy user object
       onClose();
     } catch (err) {

@@ -76,7 +76,7 @@ async function updateProfileOnBackend(userId, profileData, accessToken) {
 }
 
 // Submit game score
-async function submitScore(gameId, score, accessToken, apiKey) {
+async function submitScore(gameId, score, accessToken, apiKey, userData = null) {
   try {
     if (!accessToken) {
       throw new Error('No access token available');
@@ -86,6 +86,11 @@ async function submitScore(gameId, score, accessToken, apiKey) {
       throw new Error('No API key available');
     }
 
+    const requestBody = { gameId, score };
+    if (userData) {
+      requestBody.userData = userData;
+    }
+
     const response = await fetch(`${API_BASE_URL}/submit-score`, {
       method: 'POST',
       headers: {
@@ -93,7 +98,7 @@ async function submitScore(gameId, score, accessToken, apiKey) {
         'x-api-key': apiKey,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ gameId, score })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {

@@ -6,32 +6,32 @@ const { db, admin } = require('../config/firebase');
 async function submitScore(req, res) {
   try {
     // Extract data from request
-    const { gameId, score } = req.body;
+    const { gameId, score, userData } = req.body;
     // Extract userId from Privy token payload
     const userId = req.user.userId || req.user.id;
-    
+
     // Get user data
     let user = await User.getUserByDid(userId);
     if (!user) {
-      // Create user if not found
-      user = await User.createUser(userId, { displayName: 'Anonymous Player' });
+      // Create user if not found, using provided userData or default
+      user = await User.createUser(userId, userData || {});
     }
-    
+
     // Get game data
     const game = await Game.getGameById(gameId);
     if (!game) {
       return res.status(404).json({ error: 'Game not found' });
     }
-    
+
     // Prepare user data for leaderboard entry
-    const userData = {
+    const userDataForLeaderboard = {
       displayName: user.displayName || 'Anonymous Player',
       photoURL: user.photoURL || null
     };
-    
+
     // Update game-specific leaderboard
-    await Leaderboard.updateGameLeaderboard(gameId, userId, score, userData);
-    
+    await Leaderboard.updateGameLeaderboard(gameId, userId, score, userDataForLeaderboard);
+
     // Update user's total points and games played using a transaction
     await db.runTransaction(async (transaction) => {
       const userRef = db.collection('users').doc(userId);
@@ -41,7 +41,7 @@ async function submitScore(req, res) {
         lastActive: new Date()
       });
     });
-    
+
     // Return success response
     res.status(200).json({
       success: true,
@@ -57,7 +57,7 @@ async function submitScore(req, res) {
       console.error('Database not initialized:', error);
       return res.status(500).json({ error: 'Database service not available' });
     }
-    
+
     console.error('Error submitting score:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
