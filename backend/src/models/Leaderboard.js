@@ -1,24 +1,79 @@
-const { db } = require('../config/firebase');
+const { db, admin } = require('../config/firebase');
 
 class Leaderboard {
   static async updateGameLeaderboard(gameId, userId, score, userData) {
-    // Mock update - always succeed
-    console.log(`Mock updated leaderboard for game ${gameId}, user ${userId} with score ${score}`);
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const scoreRef = db.collection('gameScores').doc(`${gameId}-${userId}`);
+    const scoreDoc = await scoreRef.get();
+
+    if (scoreDoc.exists) {
+      const existingScore = scoreDoc.data().score;
+      if (score <= existingScore) {
+        // Don't update if new score is not higher
+        return true;
+      }
+    }
+
+    // Update or create the score
+    await scoreRef.set({
+      gameId,
+      userId,
+      score,
+      userData,
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+
     return true;
   }
 
   static async getGameLeaderboard(gameId, limit = 100) {
-    // Return mock game leaderboard data
-    return [
-      { userId: 'mock1', displayName: 'Player 1', score: 100, rank: 1 },
-      { userId: 'mock2', displayName: 'Player 2', score: 80, rank: 2 },
-      { userId: 'mock3', displayName: 'Player 3', score: 60, rank: 3 },
-    ];
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    const scoresRef = db.collection('gameScores');
+    const query = scoresRef.where('gameId', '==', gameId).orderBy('score', 'desc').limit(limit);
+    const querySnapshot = await query.get();
+
+    const leaderboard = [];
+    let rank = 1;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      leaderboard.push({
+        userId: data.userId,
+        displayName: data.userData.displayName || 'Anonymous Player',
+        score: data.score,
+        rank: rank++
+      });
+    });
+
+    return leaderboard;
   }
 
   static async getUserRankInGame(gameId, userId) {
-    // Return mock rank
-    return 1;
+    if (!db) {
+      throw new Error('Database not initialized');
+    }
+
+    // Get all scores for the game, ordered by score desc
+    const scoresRef = db.collection('gameScores');
+    const query = scoresRef.where('gameId', '==', gameId).orderBy('score', 'desc');
+    const querySnapshot = await query.get();
+
+    let rank = null;
+    let currentRank = 1;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      if (data.userId === userId) {
+        rank = currentRank;
+      }
+      currentRank++;
+    });
+
+    return rank;
   }
 }
 
