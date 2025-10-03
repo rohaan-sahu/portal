@@ -7,6 +7,7 @@ const {
   getGlobalLeaderboard,
   getGameLeaderboard
 } = require('../controllers/scoreController');
+const {createGame} = require('../controllers/adminGameController');
 const { db } = require('../config/firebase');
 
 const router = express.Router();
@@ -75,10 +76,17 @@ router.get('/games', async (req, res) => {
     console.error('Error fetching game:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Internal server error' 
+      error: 'Internal server error - games' 
     });
   }
 });
+
+/*
+* // Under development
+* // POST - Create a game
+*/
+router.post('/games',createGame);
+
 
 // Test endpoint to verify Privy client and token verification
 router.get('/test-privy', async (req, res) => {

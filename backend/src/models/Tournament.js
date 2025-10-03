@@ -1,6 +1,9 @@
 const { db, admin } = require('../config/firebase');
 
 class Tournament {
+  /*
+    Create  tournament
+  */
     static async createTournament(gameData) {
       if (!db) {
         throw new Error('Database not initialized');
@@ -46,6 +49,9 @@ class Tournament {
       }
     }
 
+  /*
+    Create  tournament by id
+  */
     static async getTournamentById(tournamentId) {
         if (!db) {
           throw new Error('Database not initialized');
@@ -76,6 +82,85 @@ class Tournament {
         }
       }
     
+      static async updateTournamentById(){
+        
+      }
+
+      static async verifyApiKey(tournamentId, apiKey) {
+        if (!db) {
+          throw new Error('Database not initialized');
+        }
+        
+        try {
+          const tournament = await this.gettournamentById(tournamentId);
+          if (!tournament) {
+            return false;
+          }
+          
+          const salt = process.env.API_KEY_SALT || 'default-salt';
+          const hashedApiKey = crypto
+            .createHash('sha256')
+            .update(apiKey + salt)
+            .digest('hex');
+          
+          return tournament.apiKey === hashedApiKey;
+        } catch (error) {
+          console.error('Error verifying API key:', error);
+          return false;
+        }
+      }
+
+      
+  /*
+    Create all tournament
+  */
+    static async getTournament() {
+        if (!db) {
+          throw new Error('Database not initialized');
+        }
+        
+        try {
+          // First try to find by document ID
+          const tournamentSnapshot = db.collection('tournaments').get()
+          
+          if (!tournamentSnapshot.empty) {
+            const allTournaments = tournamentsDoc.docs.map(doc => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+
+            return {
+              message: 'Tournaments fetched successfully',
+              tournaments: snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+              }))
+            };
+          }else{
+            return {
+              tournaments: [],
+              message: 'No tournaments available'
+            };
+          }
+          
+          return null;
+        } catch (error) {
+          console.error('Error getting tournament:', error);
+          throw error;
+        }
+      }
+  /*
+    // Under development
+    Update tournament by id
+  */
+      static async updateTournamentById(){
+        
+      }
+
+  /*
+    // Under development  
+    Verify API key & tournament id
+  */
       static async verifyApiKey(tournamentId, apiKey) {
         if (!db) {
           throw new Error('Database not initialized');

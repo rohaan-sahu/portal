@@ -1,8 +1,9 @@
 const { db } = require('../config/firebase');
 const crypto = require('crypto');
 
+
 class Game {
-  static async createGame(gameData) {
+  static async adminCreateGame(gameData) {
     if (!db) {
       throw new Error('Database not initialized');
     }
