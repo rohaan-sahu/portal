@@ -7,8 +7,8 @@ require('dotenv').config({ path: '../.env' });
 let db = null;
 
 // Check if service account file exists
-//let serviceAccountPath = path.join(__dirname, '..', '..', 'runner-18abe-firebase-adminsdk-fbsvc-eee2faafd9.json');
-let serviceAccountPath = path.join(__dirname, '..', '..', 'portal-ff4e8-firebase-adminsdk-fbsvc-377993b1c8.json');
+let serviceAccountPath = path.join(__dirname, '..', '..', 'runner-18abe-firebase-adminsdk-fbsvc-eee2faafd9.json');
+//let serviceAccountPath = path.join(__dirname, '..', '..', 'portal-ff4e8-firebase-adminsdk-fbsvc-377993b1c8.json');
 console.log(serviceAccountPath);
 //portal-ff4e8-firebase-adminsdk-fbsvc-377993b1c8
 

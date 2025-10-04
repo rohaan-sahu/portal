@@ -9,6 +9,7 @@ const {
 } = require('../controllers/scoreController');
 const {createGame} = require('../controllers/adminGameController');
 const { db } = require('../config/firebase');
+const { createTournament, getAllTournaments, getTournamentById } = require('../controllers/tournamentController');
 
 const router = express.Router();
 
@@ -82,10 +83,27 @@ router.get('/games', async (req, res) => {
 });
 
 /*
-* // Under development
+* // Games
+* <// Under development>
 * // POST - Create a game
 */
 router.post('/games',createGame);
+
+
+
+// </Under development>
+
+
+/*
+* // Tournaments
+* <// Under development>
+* // 
+*/
+router.post('/tournaments',createTournament);
+router.get('/tournaments',getAllTournaments);
+router.get('/tournaments/:tournamentId',getTournamentById);
+
+// </Under development>
 
 
 // Test endpoint to verify Privy client and token verification

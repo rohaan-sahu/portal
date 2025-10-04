@@ -26,11 +26,13 @@ class Game {
       });
       
       const gameDoc = await gameRef.get();
+      const gameId = gameDoc.data().name.trim().toLowerCase().replace(/\s+/g,'-');
       
       // Return the game data with the plain API key (only shown once)
       return { 
         id: gameDoc.id, 
         ...gameDoc.data(),
+        gameId,
         plainApiKey: apiKey
       };
     } catch (error) {
