@@ -27,8 +27,10 @@ async function createTournament(req, res) {
       return res.status(500).json({ error: 'Database service not available' });
     }
 
-    console.error('Error adding tournament:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    //console.error('Error adding tournament:', error);
+    //res.status(500).json({ error: 'Internal server error here'});
+    res.status(error.status).send(error);
+    console.log(error.message);
   }
 }
 

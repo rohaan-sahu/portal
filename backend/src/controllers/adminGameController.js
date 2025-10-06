@@ -6,7 +6,7 @@ async function createGame(req, res) {
     // Extract data from request
     const gameData = req.body;
 
-    const {id,name,gameId,description} = await Game.adminCreateGame(gameData);
+    const {id,name,gameShortname,description} = await Game.adminCreateGame(gameData);
 
     /*
 
@@ -17,7 +17,7 @@ async function createGame(req, res) {
       data: {
         id,
         name,
-        gameId,
+        gameShortName,
         description
       }
     });

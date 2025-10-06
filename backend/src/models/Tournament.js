@@ -1,3 +1,4 @@
+const e = require('express');
 const { db, admin } = require('../config/firebase');
 const crypto = require('crypto');
 
@@ -9,48 +10,60 @@ class Tournament {
     if (!db) {
       throw new Error('Database not initialized');
     }
-    if (!tournamentData.tournamentId) {
-      throw new Error('Missing required tournament fields');
+    const td = tournamentData.tournamentId;
+    if (!td) {
+      const err = new Error('Missing tournamentId');
+      err.status = 500;
+      err.code = 'Missing required field';
+      throw err;
     }
 
     try {
-      // Generate a random API key
-      const apiKey = crypto.randomBytes(32).toString('hex');
-      
-      // Hash the API key for storage
-      const salt = process.env.API_KEY_SALT || 'default-salt';
-      const hashedApiKey = crypto
-        .createHash('sha256')
-        .update(apiKey + salt)
-        .digest('hex');
-
-      const startTime = new Date(); // current timestamp
-      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // adds 60 minutes
-
       const gameDoc = await db.collection('games').doc(tournamentData.gameId).get();
 
-      const tournamentRef = await db.collection('tournaments').add({
-        ...tournamentData,
-        game: gameDoc.data().name,
-        apiKey: hashedApiKey,
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
-        participants: [],
-        rounds: [],
-        createdAt: new Date()
-      });
+      if (gameDoc.exists){
+        // Generate a random API key
+        const apiKey = crypto.randomBytes(32).toString('hex');
+        
+        // Hash the API key for storage
+        const salt = process.env.API_KEY_SALT || 'default-salt';
+        const hashedApiKey = crypto
+          .createHash('sha256')
+          .update(apiKey + salt)
+          .digest('hex');
+
+        const startTime = new Date(); // current timestamp
+        const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // adds 60 minutes
       
-      const tournamentDoc = await tournamentRef.get();
-      const timeLeftUnix = (tournamentDoc.data().endTime.toDate() - new Date());
-      const timeLeft = timeLeftUnix > 0 ? timeLeftUnix/60000 : 0;
-      
-      // Return the tournament data with the plain API key (only shown once)
-      return { 
-        id: tournamentDoc.id,
-        ...tournamentDoc.data(),
-        timeLeft,
-        plainApiKey: apiKey
-      };
+        const tournamentRef = await db.collection('tournaments').add({
+          ...tournamentData,
+          game: gameDoc.data().name,
+          apiKey: hashedApiKey,
+          startTime: new Date(startTime),
+          endTime: new Date(endTime),
+          participants: [],
+          rounds: [],
+          createdAt: new Date()
+        });
+        
+        const tournamentDoc = await tournamentRef.get();
+        const timeLeftUnix = (tournamentDoc.data().endTime.toDate() - new Date());
+        const timeLeft = timeLeftUnix > 0 ? timeLeftUnix/60000 : 0;
+        
+        // Return the tournament data with the plain API key (only shown once)
+        return { 
+          id: tournamentDoc.id,
+          ...tournamentDoc.data(),
+          timeLeft,
+          plainApiKey: apiKey
+        };
+      }else{
+        const e = new Error(`Game with id : ${tournamentData.gameId} not found in database`);
+        e.status = 404;
+        e.code =  `Game not in database`
+        throw e;
+      }
+
     } catch (error) {
       console.error('Error creating tournament:', error);
       throw error;

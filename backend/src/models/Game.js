@@ -23,7 +23,7 @@ class Game {
       
       const gameRef = await db.collection('games').add({
         ...gameData,
-        gameId: gameShortName,
+        gameShortName: gameShortName,
         apiKey: hashedApiKey,
         createdAt: new Date()
       });
