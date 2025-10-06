@@ -3,9 +3,9 @@ const { PrivyClient } = require('@privy-io/server-auth');
 let privy = null;
 
 // Initialize Privy client only if we have credentials
-if (process.env.PRIVY_APP_ID && process.env.PRIVY_APP_SECRET) {
+if (process.env.VITE_PRIVY_APP_ID && process.env.VITE_PRIVY_APP_SECRET) {
   try {
-    console.log('Initializing Privy client with APP ID:', process.env.PRIVY_APP_ID);
+    console.log('Initializing Privy client with APP ID:', process.env.VITE_PRIVY_APP_ID);
     privy = new PrivyClient({
       appId: process.env.VITE_PRIVY_APP_ID,
       appSecret: process.env.VITE_PRIVY_APP_SECRET,

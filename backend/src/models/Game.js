@@ -18,21 +18,23 @@ class Game {
         .createHash('sha256')
         .update(apiKey + salt)
         .digest('hex');
+
+      const gameShortName = gameData.name.trim().toLowerCase().replace(/\s+/g,'-');
       
       const gameRef = await db.collection('games').add({
         ...gameData,
+        gameId: gameShortName,
         apiKey: hashedApiKey,
         createdAt: new Date()
       });
       
       const gameDoc = await gameRef.get();
-      const gameId = gameDoc.data().name.trim().toLowerCase().replace(/\s+/g,'-');
+      //const gameShortName = gameDoc.data().name.trim().toLowerCase().replace(/\s+/g,'-');
       
       // Return the game data with the plain API key (only shown once)
       return { 
         id: gameDoc.id, 
         ...gameDoc.data(),
-        gameId,
         plainApiKey: apiKey
       };
     } catch (error) {
